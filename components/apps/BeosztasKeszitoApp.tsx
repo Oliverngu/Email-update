@@ -15,7 +15,200 @@ import ArrowUpIcon from '../icons/ArrowUpIcon';
 import ArrowDownIcon from '../icons/ArrowDownIcon';
 import EyeSlashIcon from '../icons/EyeSlashIcon';
 import EyeIcon from '../icons/EyeIcon';
+import { sendEmail } from '../../src/core/api/emailService';
 
+// FIX: Added missing helper functions, constants, interfaces, and components.
+
+// --- HELPER FUNCTIONS & CONSTANTS ---
+
+// Gets the dates for the week of the given date, starting from Monday
+const getWeekDays = (currentDate: Date): Date[] => {
+    const date = new Date(currentDate);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+    const monday = new Date(date.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
+    return Array.from({ length: 7 }, (_, i) => {
+        const newDate = new Date(monday);
+        newDate.setDate(monday.getDate() + i);
+        return newDate;
+    });
+};
+
+// Formats a date to a YYYY-MM-DD string
+const toDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+// Creates a default settings object for a given week
+const createDefaultSettings = (unitId: string, weekStartDate: string): ScheduleSettings => ({
+    id: `${unitId}_${weekStartDate}`,
+    unitId,
+    weekStartDate,
+    showOpeningTime: false,
+    showClosingTime: false,
+    dailySettings: Array.from({ length: 7 }, (_, i) => ({
+        isOpen: true,
+        openingTime: '08:00',
+        closingTime: '22:00',
+        quotas: {},
+    })).reduce((acc, curr, i) => ({ ...acc, [i]: curr }), {}),
+});
+
+// Lightens or darkens a hex color
+const adjustColor = (hex: string, percent: number): string => {
+    if (!hex || hex.length < 7) return '#FFFFFF';
+    let r = parseInt(hex.substring(1, 3), 16);
+    let g = parseInt(hex.substring(3, 5), 16);
+    let b = parseInt(hex.substring(5, 7), 16);
+    const amount = Math.round(2.55 * percent);
+    r = Math.min(255, Math.max(0, r + amount));
+    g = Math.min(255, Math.max(0, g + amount));
+    b = Math.min(255, Math.max(0, b + amount));
+    const toHex = (c: number) => Math.round(c).toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+
+// Gets contrasting text color (black or white) for a given background hex color
+const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+};
+const getContrastingTextColor = (hex: string): '#FFFFFF' | '#000000' => {
+    if (!hex) return '#000000';
+    const rgb = hexToRgb(hex);
+    if (!rgb) return '#000000';
+    const yiq = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+    return yiq >= 128 ? '#000000' : '#FFFFFF';
+};
+
+// Default export settings
+const DEFAULT_EXPORT_SETTINGS: ExportStyleSettings = {
+    id: '', // Will be set per unit
+    zebraStrength: 10,
+    zebraColor: '#f3f4f6', // gray-100
+    nameColumnColor: '#e5e7eb', // gray-200
+    dayHeaderBgColor: '#d1d5db', // gray-300
+    categoryHeaderBgColor: '#9ca3af', // gray-400
+    categoryHeaderTextColor: '#ffffff',
+    gridThickness: 1,
+    gridColor: '#d1d5db', // gray-300
+    useRoundedCorners: true,
+    borderRadius: 8,
+    fontSizeCell: 12,
+    fontSizeHeader: 14,
+    useFullNameForDays: false,
+    lastUsedColors: [],
+};
+
+// --- HELPER COMPONENTS ---
+
+interface ExportConfirmationModalProps {
+    type: 'PNG' | 'Excel';
+    onClose: () => void;
+    onConfirm: () => void;
+    exportSettings: ExportStyleSettings;
+    unitName: string;
+}
+
+const ExportConfirmationModal: FC<ExportConfirmationModalProps> = ({ type, onClose, onConfirm, exportSettings, unitName }) => {
+    return (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
+                <div className="p-5 border-b">
+                    <h2 className="text-xl font-bold text-gray-800">{type} Exportálás</h2>
+                </div>
+                <div className="p-6">
+                    <p>Biztosan szeretnéd exportálni a beosztást <span className="font-bold">{type}</span> formátumban a(z) <span className="font-bold">{unitName}</span> egységhez?</p>
+                    {type === 'PNG' && <p className="text-sm text-gray-500 mt-2">Az export a jelenleg beállított stílusokat fogja használni.</p>}
+                </div>
+                <div className="p-4 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+                    <button type="button" onClick={onClose} className="bg-gray-200 px-4 py-2 rounded-lg font-semibold">Mégse</button>
+                    <button type="button" onClick={onConfirm} className="bg-green-700 text-white px-4 py-2 rounded-lg font-semibold">Exportálás</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+interface ExportSettingsPanelProps {
+    settings: ExportStyleSettings;
+    setSettings: React.Dispatch<React.SetStateAction<ExportStyleSettings>>;
+}
+
+const ColorPicker: FC<{ label: string; value: string; onChange: (value: string) => void; lastUsedColors: string[]; }> = ({ label, value, onChange, lastUsedColors }) => (
+    <div>
+        <label className="text-sm font-medium">{label}</label>
+        <div className="flex items-center gap-2 mt-1">
+            <input type="color" value={value} onChange={e => onChange(e.target.value)} className="w-8 h-8 p-0.5 border rounded" />
+            <input type="text" value={value} onChange={e => onChange(e.target.value)} className="w-full p-1 border rounded" />
+        </div>
+        {lastUsedColors.length > 0 && (
+            <div className="flex gap-1 mt-1">
+                {lastUsedColors.map(color => (
+                    <button key={color} type="button" onClick={() => onChange(color)} className="w-5 h-5 rounded-full border" style={{ backgroundColor: color }} />
+                ))}
+            </div>
+        )}
+    </div>
+);
+
+
+const ExportSettingsPanel: FC<ExportSettingsPanelProps> = ({ settings, setSettings }) => {
+    const updateField = (field: keyof ExportStyleSettings, value: any) => {
+        setSettings(prev => ({...prev, [field]: value }));
+    };
+    
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+                <h4 className="font-bold text-lg">Színek</h4>
+                <ColorPicker label="Páros sorok háttérszíne" value={settings.zebraColor} onChange={v => updateField('zebraColor', v)} lastUsedColors={settings.lastUsedColors} />
+                <ColorPicker label="Név oszlop háttérszíne" value={settings.nameColumnColor} onChange={v => updateField('nameColumnColor', v)} lastUsedColors={settings.lastUsedColors}/>
+                <ColorPicker label="Nap fejléc háttérszíne" value={settings.dayHeaderBgColor} onChange={v => updateField('dayHeaderBgColor', v)} lastUsedColors={settings.lastUsedColors}/>
+                <ColorPicker label="Kategória fejléc háttérszíne" value={settings.categoryHeaderBgColor} onChange={v => updateField('categoryHeaderBgColor', v)} lastUsedColors={settings.lastUsedColors}/>
+                <ColorPicker label="Rácsvonalak színe" value={settings.gridColor} onChange={v => updateField('gridColor', v)} lastUsedColors={settings.lastUsedColors}/>
+                <div>
+                    <label className="text-sm font-medium">Páros sorok sötétítése (%)</label>
+                    <input type="range" min="0" max="100" value={settings.zebraStrength} onChange={e => updateField('zebraStrength', Number(e.target.value))} className="w-full" />
+                </div>
+            </div>
+            <div className="space-y-4">
+                <h4 className="font-bold text-lg">Tipográfia és elrendezés</h4>
+                <div>
+                    <label className="text-sm font-medium">Betűméret - cella (px)</label>
+                    <input type="number" min="10" max="18" value={settings.fontSizeCell} onChange={e => updateField('fontSizeCell', Number(e.target.value))} className="w-full p-2 border rounded-md" />
+                </div>
+                 <div>
+                    <label className="text-sm font-medium">Betűméret - fejléc (px)</label>
+                    <input type="number" min="12" max="20" value={settings.fontSizeHeader} onChange={e => updateField('fontSizeHeader', Number(e.target.value))} className="w-full p-2 border rounded-md" />
+                </div>
+                <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={settings.useFullNameForDays} onChange={e => updateField('useFullNameForDays', e.target.checked)} />
+                    Teljes napnevek használata (Hétfő vs H)
+                </label>
+                <h4 className="font-bold text-lg pt-2">Keretek</h4>
+                <div>
+                    <label className="text-sm font-medium">Rácsvonalak vastagsága (px)</label>
+                    <input type="number" min="0" max="3" value={settings.gridThickness} onChange={e => updateField('gridThickness', Number(e.target.value))} className="w-full p-2 border rounded-md" />
+                </div>
+                <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={settings.useRoundedCorners} onChange={e => updateField('useRoundedCorners', e.target.checked)} />
+                    Lekerekített sarkok használata
+                </label>
+                {settings.useRoundedCorners && (
+                    <div>
+                         <label className="text-sm font-medium">Lekerekítés mértéke (px)</label>
+                         <input type="number" min="0" max="24" value={settings.borderRadius} onChange={e => updateField('borderRadius', Number(e.target.value))} className="w-full p-2 border rounded-md" />
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
 // Helper function to calculate shift duration in hours
 const calculateShiftDuration = (shift: Shift, dailyClosingTime?: string | null): number => {
     if (shift.isDayOff || !shift.start) return 0;
@@ -257,459 +450,14 @@ const PublishWeekModal: FC<PublishWeekModalProps> = ({ units, onClose, onConfirm
     );
 };
 
-
 interface BeosztasAppProps {
     schedule: Shift[];
     requests: Request[];
-    loading: boolean;
-    error: string | null;
     currentUser: User;
     canManage: boolean;
     allUnits: Unit[];
     activeUnitIds: string[];
 }
-
-const getWeekDays = (date: Date): Date[] => {
-    const startOfWeek = new Date(date);
-    const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
-    startOfWeek.setDate(diff);
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    return Array.from({ length: 7 }, (_, i) => {
-        const newDay = new Date(startOfWeek);
-        newDay.setDate(startOfWeek.getDate() + i);
-        return newDay;
-    });
-};
-
-const toDateString = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
-
-const createDefaultSettings = (unitId: string, weekStartDate: string): ScheduleSettings => ({
-    id: `${unitId}_${weekStartDate}`,
-    unitId,
-    weekStartDate,
-    showOpeningTime: false,
-    showClosingTime: false,
-    dailySettings: Array.from({ length: 7 }, () => ({
-        isOpen: true, openingTime: '08:00', closingTime: '22:00', quotas: {}
-    })).reduce((acc, curr, i) => ({ ...acc, [i]: curr }), {})
-});
-
-// --- NEW: Default Export Settings ---
-const DEFAULT_EXPORT_SETTINGS: ExportStyleSettings = {
-    id: '',
-    zebraStrength: 15,
-    zebraColor: '#F1F5F9',
-    nameColumnColor: '#E2E8F0',
-    dayHeaderBgColor: '#CBD5E1',
-    categoryHeaderBgColor: '#CBD5E1',
-    categoryHeaderTextColor: '#1E293B',
-    gridThickness: 1,
-    gridColor: '#9CA3AF',
-    useRoundedCorners: true,
-    borderRadius: 8,
-    fontSizeCell: 14,
-    fontSizeHeader: 16,
-    useFullNameForDays: true,
-    lastUsedColors: ['#FFFFFF', '#F1F5F9', '#E2E8F0', '#CBD5E1', '#9CA3AF', '#334155'],
-};
-
-const adjustColor = (hex: string, percent: number): string => {
-    if (!hex || hex.length < 7) return '#FFFFFF';
-    let r = parseInt(hex.substring(1, 3), 16);
-    let g = parseInt(hex.substring(3, 5), 16);
-    let b = parseInt(hex.substring(5, 7), 16);
-    const amount = Math.round(2.55 * percent);
-    r = Math.min(255, Math.max(0, r + amount));
-    g = Math.min(255, Math.max(0, g + amount));
-    b = Math.min(255, Math.max(0, b + amount));
-    const toHex = (c: number) => Math.round(c).toString(16).padStart(2, '0');
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-};
-
-
-// --- COLOR HELPER FUNCTIONS ---
-const hexToRgb = (hex: string): { r: number, g: number, b: number } | null => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
-};
-
-const hexToHsv = (hex: string): { h: number, s: number, v: number } => {
-    let { r, g, b } = hexToRgb(hex) || { r: 0, g: 0, b: 0 };
-    r /= 255; g /= 255; b /= 255;
-    let max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h = 0, s = 0, v = max;
-    let d = max - min;
-    s = max === 0 ? 0 : d / max;
-    if (max !== min) {
-        switch (max) {
-            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-            case g: h = (b - r) / d + 2; break;
-            case b: h = (r - g) / d + 4; break;
-        }
-        h /= 6;
-    }
-    return { h: h * 360, s: s * 100, v: v * 100 };
-};
-
-const hsvToHex = (h: number, s: number, v: number): string => {
-    s /= 100; v /= 100;
-    let i = Math.floor((h / 360) * 6);
-    let f = (h / 360) * 6 - i;
-    let p = v * (1 - s);
-    let q = v * (1 - f * s);
-    let t = v * (1 - (1 - f) * s);
-    let r = 0, g = 0, b = 0;
-    switch (i % 6) {
-        case 0: r = v; g = t; b = p; break;
-        case 1: r = q; g = v; b = p; break;
-        case 2: r = p; g = v; b = t; break;
-        case 3: r = p; g = q; b = v; break;
-        case 4: r = t; g = p; b = v; break;
-        case 5: r = v; g = p; b = q; break;
-    }
-    const toHex = (c: number) => ('0' + Math.round(c * 255).toString(16)).slice(-2);
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-};
-
-const getContrastingTextColor = (hex: string): '#FFFFFF' | '#000000' => {
-    if (!hex) return '#000000';
-    const rgb = hexToRgb(hex);
-    if (!rgb) return '#000000';
-    const yiq = ((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000;
-    return (yiq >= 128) ? '#000000' : '#FFFFFF';
-};
-
-const getLuminance = (r: number, g: number, b: number) => {
-    const a = [r, g, b].map(v => {
-        v /= 255;
-        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-    });
-    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
-};
-
-const getContrastRatio = (hex1: string, hex2: string) => {
-    const rgb1 = hexToRgb(hex1);
-    const rgb2 = hexToRgb(hex2);
-    if (!rgb1 || !rgb2) return 1;
-    const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
-    const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
-    const brightest = Math.max(lum1, lum2);
-    const darkest = Math.min(lum1, lum2);
-    return (brightest + 0.05) / (darkest + 0.05);
-};
-
-// --- NEW: Color Picker Popup Component ---
-const ColorPickerPopup: FC<{
-    color: string;
-    onChange: (newColor: string) => void;
-    onClose: () => void;
-    lastUsedColors: string[];
-}> = ({ color, onChange, onClose, lastUsedColors }) => {
-    const popupRef = useRef<HTMLDivElement>(null);
-    const [hsv, setHsv] = useState(() => hexToHsv(color));
-
-    useEffect(() => {
-        setHsv(hexToHsv(color));
-    }, [color]);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
-                onClose();
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [onClose]);
-
-    const handleSliderChange = (part: 'h' | 's' | 'v', value: number) => {
-        const newHsv = { ...hsv, [part]: value };
-        setHsv(newHsv);
-        onChange(hsvToHex(newHsv.h, newHsv.s, newHsv.v));
-    };
-
-    const hueGradient = `linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%)`;
-    const saturationGradient = `linear-gradient(to right, #fff, ${hsvToHex(hsv.h, 100, 100)})`;
-    const valueGradient = `linear-gradient(to right, #000, ${hsvToHex(hsv.h, 100, 100)})`;
-
-    return (
-        <div ref={popupRef} className="absolute z-20 w-72 bg-white rounded-lg shadow-2xl border p-4">
-            <div className="w-full h-20 rounded mb-4" style={{ backgroundColor: color }}></div>
-            <div className="space-y-3">
-                <div>
-                    <label className="text-xs font-semibold text-gray-600">Színárnyalat</label>
-                    <div className="h-6 rounded-full" style={{ background: hueGradient }}>
-                        <input type="range" min="0" max="360" value={hsv.h} onChange={e => handleSliderChange('h', +e.target.value)} className="w-full h-full slider-thumb" />
-                    </div>
-                </div>
-                <div>
-                    <label className="text-xs font-semibold text-gray-600">Telítettség</label>
-                    <div className="h-6 rounded-full" style={{ background: saturationGradient }}>
-                        <input type="range" min="0" max="100" value={hsv.s} onChange={e => handleSliderChange('s', +e.target.value)} className="w-full h-full slider-thumb" />
-                    </div>
-                </div>
-                <div>
-                    <label className="text-xs font-semibold text-gray-600">Fényerő</label>
-                    <div className="h-6 rounded-full" style={{ background: valueGradient }}>
-                        <input type="range" min="0" max="100" value={hsv.v} onChange={e => handleSliderChange('v', +e.target.value)} className="w-full h-full slider-thumb" />
-                    </div>
-                </div>
-            </div>
-            <div className="mt-4 pt-3 border-t">
-                <h4 className="text-xs font-semibold text-gray-600 mb-2">Utoljára használt</h4>
-                <div className="flex flex-wrap gap-2">
-                    {(lastUsedColors || []).map((c, i) => (
-                        <button key={i} onClick={() => onChange(c)} className="h-7 w-7 rounded-full border-2 border-white shadow shrink-0" style={{ backgroundColor: c }} title={c}></button>
-                    ))}
-                </div>
-            </div>
-            <style>{`
-                .slider-thumb { -webkit-appearance: none; appearance: none; width: 100%; height: 100%; background: transparent; cursor: pointer; }
-                .slider-thumb::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: #fff; border-radius: 50%; border: 2px solid #ccc; box-shadow: 0 0 4px rgba(0,0,0,0.2); }
-                .slider-thumb::-moz-range-thumb { width: 24px; height: 24px; background: #fff; border-radius: 50%; border: 2px solid #ccc; box-shadow: 0 0 4px rgba(0,0,0,0.2); }
-            `}</style>
-        </div>
-    );
-};
-
-// --- Export Settings Panel Component ---
-const ExportSettingsPanel: FC<{
-    settings: ExportStyleSettings;
-    setSettings: React.Dispatch<React.SetStateAction<ExportStyleSettings>>;
-}> = ({ settings, setSettings }) => {
-    const [activeColorPicker, setActiveColorPicker] = useState<keyof ExportStyleSettings | null>(null);
-
-    const handleColorChange = (key: keyof ExportStyleSettings, value: string) => {
-        setSettings(prev => ({...prev, [key]: value}));
-    };
-    
-    const handleSliderChange = (key: keyof ExportStyleSettings, value: string) => {
-        setSettings(prev => ({...prev, [key]: Number(value)}));
-    };
-    
-    const handleCheckboxChange = (key: keyof ExportStyleSettings, checked: boolean) => {
-        setSettings(prev => ({...prev, [key]: checked}));
-    };
-    
-    const categoryTextColor = useMemo(() => getContrastingTextColor(settings.categoryHeaderBgColor), [settings.categoryHeaderBgColor]);
-    const dayHeaderTextColor = useMemo(() => getContrastingTextColor(settings.dayHeaderBgColor), [settings.dayHeaderBgColor]);
-    const nameColumnTextColor = useMemo(() => getContrastingTextColor(settings.nameColumnColor), [settings.nameColumnColor]);
-    const zebraTextColor = useMemo(() => getContrastingTextColor(settings.zebraColor), [settings.zebraColor]);
-
-    const contrastWarning = useMemo(() => {
-        const checks = [
-            getContrastRatio(settings.categoryHeaderBgColor, categoryTextColor),
-            getContrastRatio(settings.dayHeaderBgColor, dayHeaderTextColor),
-            getContrastRatio(settings.nameColumnColor, nameColumnTextColor),
-            getContrastRatio(settings.zebraColor, zebraTextColor),
-        ];
-        return checks.some(ratio => ratio < 3.0) ? "Alacsony kontraszt – válassz világosabb vagy sötétebb árnyalatot." : null;
-    }, [settings, categoryTextColor, dayHeaderTextColor, nameColumnTextColor, zebraTextColor]);
-
-    const altZebraColor = useMemo(() => adjustColor(settings.zebraColor, -(settings.zebraStrength / 2)), [settings.zebraColor, settings.zebraStrength]);
-    const altNameColor = useMemo(() => adjustColor(settings.nameColumnColor, -(settings.zebraStrength / 2)), [settings.nameColumnColor, settings.zebraStrength]);
-    const altZebraTextColor = useMemo(() => getContrastingTextColor(altZebraColor), [altZebraColor]);
-    const altNameTextColor = useMemo(() => getContrastingTextColor(altNameColor), [altNameColor]);
-
-
-    const ColorInput: FC<{id: keyof ExportStyleSettings, label: string}> = ({id, label}) => (
-        <div className="relative">
-            <label className="block text-sm">{label}</label>
-            <button type="button" onClick={() => setActiveColorPicker(id)} className="w-full h-10 p-1 border rounded-lg flex items-center justify-between text-sm px-2" style={{ backgroundColor: settings[id] as string, color: getContrastingTextColor(settings[id] as string) }}>
-                <span>{settings[id] as string}</span>
-                <div className="w-6 h-6 rounded border border-gray-400" style={{ backgroundColor: settings[id] as string }}></div>
-            </button>
-            {activeColorPicker === id && (
-                <ColorPickerPopup
-                    color={settings[id] as string}
-                    onChange={(newColor) => handleColorChange(id, newColor)}
-                    onClose={() => setActiveColorPicker(null)}
-                    lastUsedColors={settings.lastUsedColors}
-                />
-            )}
-        </div>
-    );
-
-    return (
-        <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-            {/* Left: Controls */}
-            <div className="space-y-6">
-                 <div>
-                    <h4 className="font-semibold mb-2">Sorok színezése</h4>
-                    <label className="block text-sm">Zebra erősség: {settings.zebraStrength}%</label>
-                    <input type="range" min="0" max="100" value={settings.zebraStrength} onChange={e => handleSliderChange('zebraStrength', e.target.value)} className="w-full" />
-                    <ColorInput id="zebraColor" label="Alapszín" />
-                </div>
-                 <div>
-                    <h4 className="font-semibold mb-2">Név oszlop</h4>
-                    <ColorInput id="nameColumnColor" label="Alapszín" />
-                 </div>
-                 <div>
-                    <h4 className="font-semibold mb-2">Fejlécek</h4>
-                     <ColorInput id="dayHeaderBgColor" label="Napok fejléce" />
-                     <ColorInput id="categoryHeaderBgColor" label="Kategória háttér" />
-                </div>
-                 <div>
-                    <h4 className="font-semibold mb-2">Rács és Keret</h4>
-                    <ColorInput id="gridColor" label="Rácsvonal színe" />
-                    <label className="block text-sm mt-2">Lekerekítés: {settings.borderRadius}px</label>
-                    <input type="range" min="0" max="24" value={settings.borderRadius} onChange={e => handleSliderChange('borderRadius', e.target.value)} className="w-full" />
-                    <label className="flex items-center gap-2"><input type="checkbox" checked={settings.useRoundedCorners} onChange={e => handleCheckboxChange('useRoundedCorners', e.target.checked)} /> Lekerekített sarkok</label>
-                </div>
-                 <div>
-                    <h4 className="font-semibold mb-2">Tipográfia</h4>
-                     <label className="block text-sm">Napok formátuma</label>
-                    <select value={settings.useFullNameForDays ? 'full' : 'short'} onChange={e => handleCheckboxChange('useFullNameForDays', e.target.value === 'full')} className="w-full p-2 border rounded">
-                        <option value="full">Teljes napnevek (Hétfő, Kedd...)</option>
-                        <option value="short">Rövid nevek (H, K...)</option>
-                    </select>
-                </div>
-            </div>
-            {/* Right: Preview */}
-            <div className="sticky top-0">
-                <h4 className="font-semibold mb-2">Előnézet</h4>
-                <div className="p-2 bg-gray-200" style={{ borderRadius: settings.useRoundedCorners ? `${settings.borderRadius}px` : '0px' }}>
-                    <table className="w-full text-xs border-collapse" style={{ border: `${settings.gridThickness}px solid ${settings.gridColor}` }}>
-                        <thead>
-                            <tr>
-                                <th style={{ background: settings.nameColumnColor, color: nameColumnTextColor, padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, fontSize: `${settings.fontSizeHeader}px`, verticalAlign: 'middle', textAlign: 'center' }}>Munkatárs</th>
-                                <th style={{ background: settings.dayHeaderBgColor, color: dayHeaderTextColor, padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, fontSize: `${settings.fontSizeHeader}px`, verticalAlign: 'middle', textAlign: 'center' }}>H</th>
-                                <th style={{ background: settings.dayHeaderBgColor, color: dayHeaderTextColor, padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, fontSize: `${settings.fontSizeHeader}px`, verticalAlign: 'middle', textAlign: 'center' }}>K</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr style={{ background: settings.categoryHeaderBgColor }}>
-                                <td colSpan={3} style={{ padding: '6px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, fontWeight: 'bold', color: categoryTextColor, fontSize: '1.1em', verticalAlign: 'middle', textAlign: 'center' }}>Pultos</td>
-                            </tr>
-                            <tr style={{ background: settings.zebraColor, color: zebraTextColor }}>
-                                <td style={{ padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, background: settings.nameColumnColor, color: nameColumnTextColor, fontSize: `${settings.fontSizeCell}px`, verticalAlign: 'middle', textAlign: 'center' }}>Minta János</td>
-                                <td style={{ padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, fontSize: `${settings.fontSizeCell}px`, verticalAlign: 'middle', textAlign: 'center' }}>10:00-18:00</td>
-                                <td style={{ padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, fontSize: `${settings.fontSizeCell}px`, verticalAlign: 'middle', textAlign: 'center' }}>X</td>
-                            </tr>
-                            <tr style={{ background: altZebraColor, color: altZebraTextColor }}>
-                                <td style={{ padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, background: altNameColor, color: altNameTextColor, fontSize: `${settings.fontSizeCell}px`, verticalAlign: 'middle', textAlign: 'center' }}>Teszt Eszter</td>
-                                <td style={{ padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, fontSize: `${settings.fontSizeCell}px`, verticalAlign: 'middle', textAlign: 'center' }}>X</td>
-                                <td style={{ padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, fontSize: `${settings.fontSizeCell}px`, verticalAlign: 'middle', textAlign: 'center' }}>14:00-22:00</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                {contrastWarning && <p className="text-xs text-red-600 font-semibold mt-2">{contrastWarning}</p>}
-            </div>
-        </div>
-        </div>
-    );
-};
-
-interface ExportConfirmationModalProps {
-    type: 'PNG' | 'Excel';
-    onClose: () => void;
-    onConfirm: () => Promise<void>;
-    exportSettings: ExportStyleSettings;
-    unitName: string;
-}
-
-const ExportConfirmationModal: FC<ExportConfirmationModalProps> = ({ type, onClose, onConfirm, exportSettings, unitName }) => {
-    const [isExporting, setIsExporting] = useState(false);
-
-    const handleConfirmClick = async () => {
-        setIsExporting(true);
-        try {
-            await onConfirm();
-            // On success, the parent will close the modal and show a toast.
-        } catch (err) {
-            // Errors are typically handled inside the export functions with an alert.
-            setIsExporting(false); // Re-enable button on failure.
-        }
-    };
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [onClose]);
-
-    // A miniaturized version of the ExportSettingsPanel preview for the confirmation modal
-    const Preview: FC<{ settings: ExportStyleSettings }> = ({ settings }) => {
-        const altZebraColor = useMemo(() => adjustColor(settings.zebraColor, -(settings.zebraStrength / 2)), [settings.zebraColor, settings.zebraStrength]);
-        const altNameColor = useMemo(() => adjustColor(settings.nameColumnColor, -(settings.zebraStrength / 2)), [settings.nameColumnColor, settings.zebraStrength]);
-        const categoryTextColor = getContrastingTextColor(settings.categoryHeaderBgColor);
-
-        return (
-            <div className="p-2 bg-gray-200" style={{ borderRadius: settings.useRoundedCorners ? `${settings.borderRadius}px` : '0px' }}>
-                <table className="w-full text-xs border-collapse" style={{ border: `${settings.gridThickness}px solid ${settings.gridColor}` }}>
-                    <thead>
-                        <tr>
-                            <th style={{ background: settings.nameColumnColor, color: getContrastingTextColor(settings.nameColumnColor), padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}` }}>Név</th>
-                            <th style={{ background: settings.dayHeaderBgColor, color: getContrastingTextColor(settings.dayHeaderBgColor), padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}` }}>H</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style={{ background: settings.categoryHeaderBgColor }}>
-                            <td colSpan={2} style={{ padding: '6px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, fontWeight: 'bold', color: categoryTextColor }}>Pultos</td>
-                        </tr>
-                        <tr style={{ background: settings.zebraColor, color: getContrastingTextColor(settings.zebraColor) }}>
-                            <td style={{ padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, background: settings.nameColumnColor, color: getContrastingTextColor(settings.nameColumnColor) }}>Minta J.</td>
-                            <td style={{ padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}` }}>08-16</td>
-                        </tr>
-                        <tr style={{ background: altZebraColor, color: getContrastingTextColor(altZebraColor) }}>
-                            <td style={{ padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}`, background: altNameColor, color: getContrastingTextColor(altNameColor) }}>Teszt E.</td>
-                            <td style={{ padding: '4px', border: `${settings.gridThickness}px solid ${settings.gridColor}` }}>X</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        );
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl" onClick={e => e.stopPropagation()}>
-                <div className="p-5 border-b">
-                    <h2 className="text-xl font-bold text-gray-800">Export előnézet és megerősítés</h2>
-                </div>
-                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                    <div>
-                        <h3 className="font-semibold text-gray-800">Előnézet</h3>
-                        <div className="mt-2 scale-90 origin-top-left"><Preview settings={exportSettings} /></div>
-                    </div>
-                    <div className="space-y-4">
-                        <p className="text-gray-600">
-                            Az exportált táblázat megjelenése testreszabható a Beállítások menüben.
-                            Biztosan exportálni szeretnéd ezzel a formátummal?
-                        </p>
-                        <div className="p-3 bg-gray-100 rounded-lg text-sm">
-                            <span className="font-semibold">Egység:</span> {unitName}<br/>
-                            <span className="font-semibold">Formátum:</span> {type}
-                        </div>
-                    </div>
-                </div>
-                <div className="p-4 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
-                    <button type="button" onClick={onClose} className="bg-gray-200 px-4 py-2 rounded-lg font-semibold">Mégse</button>
-                    <button
-                        onClick={handleConfirmClick}
-                        disabled={isExporting}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold disabled:bg-gray-400 flex items-center gap-2"
-                    >
-                        {isExporting && <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
-                        {isExporting ? 'Exportálás...' : 'Exportálás megerősítése'}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
 
 export const BeosztasApp: FC<BeosztasAppProps> = ({ schedule, requests, currentUser, canManage, allUnits, activeUnitIds }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -1061,6 +809,26 @@ export const BeosztasApp: FC<BeosztasAppProps> = ({ schedule, requests, currentU
             shiftsToPublish.forEach(shift => batch.update(doc(db, 'shifts', shift.id), { status: 'published' }));
             await batch.commit();
             alert('A kiválasztott műszakok sikeresen publikálva!');
+            
+            const weekLabel = `${weekDays[0].toLocaleDateString('hu-HU', {month: 'short', day: 'numeric'})} - ${weekDays[6].toLocaleDateString('hu-HU', {month: 'short', day: 'numeric'})}`;
+
+            for (const unitId of selectedUnitIds) {
+                const unit = allUnits.find(u => u.id === unitId);
+                if (!unit) continue;
+
+                const shiftsInUnit = shiftsToPublish.filter(s => s.unitId === unitId);
+                const userIdsInUnit = [...new Set(shiftsInUnit.map(s => s.userId))];
+
+                for (const userId of userIdsInUnit) {
+                    const user = allAppUsers.find(u => u.id === userId);
+                    if (user && user.email) {
+                        sendEmail({
+                            messageType: 'schedule_published_notification',
+                            data: { user, weekLabel, unit }
+                        });
+                    }
+                }
+            }
         }
         setIsPublishModalOpen(false);
     };
@@ -1411,7 +1179,7 @@ export const BeosztasApp: FC<BeosztasAppProps> = ({ schedule, requests, currentU
                                 weekDays,
                                 shiftsByUserDay,
                                 requestsByUserDay,
-                                toDateString,
+                                toDateString: toDateString,
                                 units: allUnits,
                                 currentUser,
                                 weekSettings,

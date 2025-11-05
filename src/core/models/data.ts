@@ -124,6 +124,11 @@ export interface ReservationSetting {
     theme?: ThemeSettings;
     schemaVersion?: number;
     notificationEmails?: string[];
+    notifications?: {
+        enableGuestReservationEmails: boolean;
+        enableUnitReservationEmails: boolean;
+        enableSchedulePublishEmails: boolean;
+    };
 }
 
 

@@ -2,7 +2,7 @@
 
 import { emailProviderConfig } from '../config/emailConfig';
 import { renderEmailTemplate, EmailTemplateData } from '../email/templates';
-import { getGlobalNotificationSettings, GlobalNotificationSettings } from './settingsService';
+import { getGlobalNotificationSettings, GlobalNotificationSettings, getUnitNotificationSettings } from './settingsService';
 
 // A union of all possible message types
 export type EmailMessageType = 
@@ -43,12 +43,13 @@ function mockSend(params: FinalEmailParams, type: 'MOCK' | 'REAL SEND FAILED') {
 async function sendViaProvider(params: FinalEmailParams): Promise<void> {
   const { provider, apiKey, fromDefault } = emailProviderConfig;
 
-  // The 'provider' in the config is already determined by NODE_ENV and apiKey presence.
-  // If it's 'resend', we can proceed. Otherwise, it's 'mock'.
   if (provider === 'resend' && apiKey) {
-    // REAL SEND logic using Resend
     try {
       const toArray = Array.isArray(params.to) ? params.to : [params.to];
+      if (toArray.length === 0) {
+          console.log(`[EMAIL SERVICE] Skipped sending email for "${params.subject}" because there are no recipients.`);
+          return;
+      }
       const response = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -78,43 +79,60 @@ async function sendViaProvider(params: FinalEmailParams): Promise<void> {
       mockSend(params, 'REAL SEND FAILED');
     }
   } else {
-    // MOCK SEND logic (for dev, or if prod is misconfigured)
     mockSend(params, 'MOCK');
   }
 }
 
 // --- Public API ---
 
-/**
- * Orchestrates sending an email by checking settings, rendering templates, and calling the provider.
- * This is the main function to be called from other parts of the application.
- * It does not throw errors to avoid breaking business logic flows.
- */
 export const sendEmail = async (params: SendEmailData): Promise<{ success: boolean; message: string }> => {
   const { messageType, data, locale = 'hu' } = params;
 
-  // 1. Check global notification settings
-  const notificationSettings = await getGlobalNotificationSettings();
-  const settingKey = {
-      'registration_confirmation': 'enableRegistrationEmails',
-      'guest_reservation_confirmation': 'enableGuestReservationEmails',
-      'unit_new_reservation_notification': 'enableUnitReservationEmails',
-      'schedule_published_notification': 'enableSchedulePublishEmails',
-  }[messageType] as keyof GlobalNotificationSettings;
-
-  if (notificationSettings[settingKey] === false) {
-    console.log(`[EMAIL SERVICE] Skipped email type "${messageType}" due to global settings.`);
-    return { success: true, message: 'Skipped by global settings.' };
+  // 1. Check notification settings
+  if (messageType === 'registration_confirmation') {
+    const globalSettings = await getGlobalNotificationSettings();
+    if (globalSettings.enableRegistrationEmails === false) {
+      console.log(`[EMAIL SERVICE] Skipped email type "${messageType}" due to global settings.`);
+      return { success: true, message: 'Skipped by global settings.' };
+    }
+  } else {
+    const unit = data.unit;
+    if (!unit) {
+      console.warn(`[EMAIL SERVICE] Unit not provided for unit-specific email type "${messageType}". Sending without check.`);
+    } else {
+      const unitSettings = await getUnitNotificationSettings(unit.id);
+      
+      if (messageType === 'guest_reservation_confirmation' && unitSettings.notifications.enableGuestReservationEmails === false) {
+        console.log(`[EMAIL SERVICE] Skipped "${messageType}" for unit ${unit.id} due to unit settings.`);
+        return { success: true, message: 'Skipped by unit settings.' };
+      }
+      if (messageType === 'unit_new_reservation_notification' && unitSettings.notifications.enableUnitReservationEmails === false) {
+        console.log(`[EMAIL SERVICE] Skipped "${messageType}" for unit ${unit.id} due to unit settings.`);
+        return { success: true, message: 'Skipped by unit settings.' };
+      }
+      if (messageType === 'schedule_published_notification') {
+        const user = data.user!;
+        if (unitSettings.notifications.enableSchedulePublishEmails === false) {
+          console.log(`[EMAIL SERVICE] Skipped "${messageType}" for unit ${unit.id} due to unit settings.`);
+          return { success: true, message: 'Skipped by unit settings.' };
+        }
+        if (user.notifications?.newSchedule === false) {
+            console.log(`[EMAIL SERVICE] Skipped "${messageType}" for user ${user.id} due to user's personal settings.`);
+            return { success: true, message: 'Skipped by user settings.' };
+        }
+      }
+    }
   }
   
-  // 2. Determine recipient(s) from data payload
+  // 2. Determine recipient(s)
   let to: string | string[] | undefined;
-  if ('user' in data && data.user?.email) {
+  if (messageType === 'unit_new_reservation_notification' && data.unit) {
+      const unitSettings = await getUnitNotificationSettings(data.unit.id);
+      to = unitSettings.notificationEmails;
+  } else if ('user' in data && data.user?.email) {
     to = data.user.email;
   } else if ('booking' in data && data.booking?.contact?.email) {
     to = data.booking.contact.email;
-  } else if ('notificationEmails' in data && data.notificationEmails) {
-    to = data.notificationEmails;
   }
 
   if (!to || (Array.isArray(to) && to.length === 0)) {
@@ -122,21 +140,16 @@ export const sendEmail = async (params: SendEmailData): Promise<{ success: boole
     return { success: false, message: 'No recipient found.' };
   }
 
-  // 3. Render email content from template
+  // 3. Render email content
   const renderedContent = renderEmailTemplate(messageType, locale, data);
-
   if (!renderedContent) {
     console.error(`[EMAIL SERVICE] Failed to render template for message type "${messageType}".`);
     return { success: false, message: 'Template rendering failed.' };
   }
 
-  const finalEmailParams: FinalEmailParams = {
-    to,
-    ...renderedContent,
-  };
+  const finalEmailParams: FinalEmailParams = { to, ...renderedContent };
 
-  // 4. Send via the configured provider (with fallback).
-  // No need to wrap in try/catch as sendViaProvider handles its own errors.
+  // 4. Send
   await sendViaProvider(finalEmailParams);
   
   return { success: true, message: 'Email processed.' };
