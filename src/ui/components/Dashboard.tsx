@@ -124,12 +124,11 @@ const Dashboard: React.FC<DashboardProps> = ({
     if (categoryStorageKey) {
         try {
             const sanitizedState: Record<string, boolean> = {};
-            // The for...in loop with hasOwnProperty is robust for iterating object keys.
+            // More robustly filter the state to ensure only boolean values are saved.
             for (const key in openCategories) {
                 if (Object.prototype.hasOwnProperty.call(openCategories, key)) {
                     const value = openCategories[key];
-                    // Explicitly check for boolean primitives to avoid saving complex objects.
-                    if (value === true || value === false) {
+                    if (typeof value === 'boolean') {
                         sanitizedState[key] = value;
                     }
                 }
