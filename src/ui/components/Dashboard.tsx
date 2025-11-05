@@ -6,7 +6,7 @@ import { db } from '../../core/firebase/config';
 import KerelemekApp from './apps/KerelemekApp';
 import FoglalasokApp from './apps/FoglalasokApp';
 import { BeosztasApp } from './apps/BeosztasKeszitoApp';
-import UserSettingsApp from './apps/UserSettingsApp';
+import UserSettingsApp from './UserSettingsApp';
 import TodoApp from './apps/TodoApp';
 import AdminTodoApp from './apps/AdminTodoApp';
 import ContactsApp from './apps/ContactsApp';
@@ -112,7 +112,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                     altalanos: true,
                     feladatok: true,
                     kommunikacio: true,
-                    adminisztracio: true,
                 });
             }
         } catch (e) {
@@ -122,14 +121,15 @@ const Dashboard: React.FC<DashboardProps> = ({
   }, [categoryStorageKey]);
 
   useEffect(() => {
-    if (categoryStorageKey && Object.keys(openCategories).length > 0) {
+    if (categoryStorageKey) {
         try {
-            // Sanitize state to ensure only booleans are stored, preventing circular JSON errors.
             const sanitizedState: Record<string, boolean> = {};
+            // The for...in loop with hasOwnProperty is robust for iterating object keys.
             for (const key in openCategories) {
                 if (Object.prototype.hasOwnProperty.call(openCategories, key)) {
                     const value = openCategories[key];
-                    if (typeof value === 'boolean') {
+                    // Explicitly check for boolean primitives to avoid saving complex objects.
+                    if (value === true || value === false) {
                         sanitizedState[key] = value;
                     }
                 }
@@ -156,7 +156,6 @@ const Dashboard: React.FC<DashboardProps> = ({
   const hasPermission = (permission: keyof Permissions | 'canManageAdminPage'): boolean => {
     if (currentUser.role === 'Admin') return true;
     if (currentUser.role === 'Demo User') { 
-        // FIX: Ensure permission is a string before calling startsWith
         if (typeof permission === 'string') {
             return permission.startsWith('canView') || permission === 'canSubmitLeaveRequests';
         }

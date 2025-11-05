@@ -1,48 +1,48 @@
 import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
-import { User, Request, Booking, Shift, Todo, Contact, ContactCategory, Position, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from '../data/mockData';
-import { db } from '../firebase/config';
+import { User, Request, Booking, Shift, Todo, Contact, ContactCategory, Position, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from './data/mockData';
+import { db } from './firebase/config';
 
 // Import App Components
-import KerelemekApp from './apps/KerelemekApp';
-import FoglalasokApp from './apps/FoglalasokApp';
-import { BeosztasApp } from './apps/BeosztasKeszitoApp';
-import UserSettingsApp from './apps/UserSettingsApp';
-import TodoApp from './apps/TodoApp';
-import AdminTodoApp from './apps/AdminTodoApp';
-import ContactsApp from './apps/ContactsApp';
-import TudastarApp from './apps/TudastarApp';
-import VelemenyekApp from './apps/VelemenyekApp';
-import BerezesemApp from './apps/BerezesemApp';
-import AdminisztracioApp from './apps/AdminisztracioApp';
-import HomeDashboard from './HomeDashboard';
-import PollsApp from './polls/PollsApp';
-import ChatApp from './apps/ChatApp';
+import KerelemekApp from './components/apps/KerelemekApp';
+import FoglalasokApp from './components/apps/FoglalasokApp';
+import { BeosztasApp } from './components/apps/BeosztasKeszitoApp';
+import UserSettingsApp from './components/apps/UserSettingsApp';
+import TodoApp from './components/apps/TodoApp';
+import AdminTodoApp from './components/apps/AdminTodoApp';
+import ContactsApp from './components/apps/ContactsApp';
+import TudastarApp from './components/apps/TudastarApp';
+import VelemenyekApp from './components/apps/VelemenyekApp';
+import BerezesemApp from './components/apps/BerezesemApp';
+import AdminisztracioApp from './components/apps/AdminisztracioApp';
+import HomeDashboard from './components/HomeDashboard';
+import PollsApp from './components/polls/PollsApp';
+import ChatApp from './components/apps/ChatApp';
 
 // Import Icons
-import HomeIcon from './icons/HomeIcon';
-import CalendarIcon from './icons/CalendarIcon';
-import BookingIcon from './icons/BookingIcon';
-import ScheduleIcon from './icons/ScheduleIcon';
-import SettingsIcon from './icons/SettingsIcon';
-import LogoutIcon from './icons/LogoutIcon';
-import MenuIcon from './icons/MenuIcon';
-import MintLeafLogo from './icons/AppleLogo';
-import LoadingSpinner from './LoadingSpinner';
-import TodoIcon from './icons/TodoIcon';
-import AdminTodoIcon from './icons/AdminTodoIcon';
-import ContactsIcon from './icons/ContactsIcon';
-import BookIcon from './icons/BookIcon';
-import FeedbackIcon from './icons/FeedbackIcon';
-import MoneyIcon from './icons/MoneyIcon';
-import AdminIcon from './icons/AdminIcon';
-import PollsIcon from './icons/PollsIcon';
-import ChatIcon from './icons/ChatIcon';
-import { useUnitContext } from '../context/UnitContext';
-import UserIcon from './icons/UserIcon';
-import ArrowDownIcon from './icons/ArrowDownIcon';
-import InvitationIcon from './icons/InvitationIcon';
-import BuildingIcon from './icons/BuildingIcon';
-import CalendarOffIcon from './icons/CalendarOffIcon';
+import HomeIcon from './components/icons/HomeIcon';
+import CalendarIcon from './components/icons/CalendarIcon';
+import BookingIcon from './components/icons/BookingIcon';
+import ScheduleIcon from './components/icons/ScheduleIcon';
+import SettingsIcon from './components/icons/SettingsIcon';
+import LogoutIcon from './components/icons/LogoutIcon';
+import MenuIcon from './components/icons/MenuIcon';
+import MintLeafLogo from './components/icons/AppleLogo';
+import LoadingSpinner from './components/LoadingSpinner';
+import TodoIcon from './components/icons/TodoIcon';
+import AdminTodoIcon from './components/icons/AdminTodoIcon';
+import ContactsIcon from './components/icons/ContactsIcon';
+import BookIcon from './components/icons/BookIcon';
+import FeedbackIcon from './components/icons/FeedbackIcon';
+import MoneyIcon from './components/icons/MoneyIcon';
+import AdminIcon from './components/icons/AdminIcon';
+import PollsIcon from './components/icons/PollsIcon';
+import ChatIcon from './components/icons/ChatIcon';
+import { useUnitContext } from './context/UnitContext';
+import UserIcon from './components/icons/UserIcon';
+import ArrowDownIcon from './components/icons/ArrowDownIcon';
+import InvitationIcon from './components/icons/InvitationIcon';
+import BuildingIcon from './components/icons/BuildingIcon';
+import CalendarOffIcon from './components/icons/CalendarOffIcon';
 
 
 interface DashboardProps {
@@ -112,7 +112,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                     altalanos: true,
                     feladatok: true,
                     kommunikacio: true,
-                    adminisztracio: true,
                 });
             }
         } catch (e) {
@@ -122,14 +121,15 @@ const Dashboard: React.FC<DashboardProps> = ({
   }, [categoryStorageKey]);
 
   useEffect(() => {
-    if (categoryStorageKey && Object.keys(openCategories).length > 0) {
+    if (categoryStorageKey) {
         try {
-            // Sanitize state to ensure only booleans are stored, preventing circular JSON errors.
             const sanitizedState: Record<string, boolean> = {};
+            // The for...in loop with hasOwnProperty is robust for iterating object keys.
             for (const key in openCategories) {
                 if (Object.prototype.hasOwnProperty.call(openCategories, key)) {
                     const value = openCategories[key];
-                    if (typeof value === 'boolean') {
+                    // Explicitly check for boolean primitives to avoid saving complex objects.
+                    if (value === true || value === false) {
                         sanitizedState[key] = value;
                     }
                 }

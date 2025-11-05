@@ -112,7 +112,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                     altalanos: true,
                     feladatok: true,
                     kommunikacio: true,
-                    adminisztracio: true,
                 });
             }
         } catch (e) {
@@ -124,20 +123,19 @@ const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
     if (categoryStorageKey) {
         try {
-            // Sanitize the state to prevent stringifying non-serializable values
             const sanitizedState: Record<string, boolean> = {};
+            // The for...in loop with hasOwnProperty is robust for iterating object keys.
             for (const key in openCategories) {
                 if (Object.prototype.hasOwnProperty.call(openCategories, key)) {
                     const value = openCategories[key];
-                    if (typeof value === 'boolean') {
+                    // Explicitly check for boolean primitives to avoid saving complex objects.
+                    if (value === true || value === false) {
                         sanitizedState[key] = value;
                     }
-                    // Silently ignore non-boolean properties to prevent crash
                 }
             }
             localStorage.setItem(categoryStorageKey, JSON.stringify(sanitizedState));
         } catch (e) {
-            // This catch block is for JSON.stringify errors, which the sanitization should prevent.
             console.error("Failed to save sidebar state to localStorage", e);
         }
     }
