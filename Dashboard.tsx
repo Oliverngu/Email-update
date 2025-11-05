@@ -123,19 +123,22 @@ const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
     if (categoryStorageKey) {
         try {
-            const sanitizedState: Record<string, boolean> = {};
-            // More robustly filter the state to ensure only boolean values are saved.
-            for (const key in openCategories) {
-                if (Object.prototype.hasOwnProperty.call(openCategories, key)) {
-                    const value = openCategories[key];
-                    if (typeof value === 'boolean') {
-                        sanitizedState[key] = value;
-                    }
-                }
+            // Prevent stringifying if the state is not a valid object, which could happen during hydration or state corruption.
+            if (typeof openCategories !== 'object' || openCategories === null || Array.isArray(openCategories)) {
+                return;
             }
+            
+            const sanitizedState = Object.keys(openCategories).reduce((acc, key) => {
+                const value = openCategories[key as keyof typeof openCategories];
+                if (typeof value === 'boolean') {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {} as Record<string, boolean>);
+
             localStorage.setItem(categoryStorageKey, JSON.stringify(sanitizedState));
         } catch (e) {
-            console.error("Failed to save sidebar state to localStorage", e);
+            console.error("Failed to save sidebar state to localStorage due to a possible circular reference.", e);
         }
     }
   }, [openCategories, categoryStorageKey]);

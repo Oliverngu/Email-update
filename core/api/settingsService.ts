@@ -1,5 +1,4 @@
-// src/core/api/settingsService.ts
-import { db } from '../firebase/config';
+import { db } from '../../firebase/config';
 import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 
 // For user-specific settings

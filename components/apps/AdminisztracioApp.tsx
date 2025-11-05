@@ -9,6 +9,7 @@ import MeghivokApp from './MeghivokApp';
 import EgysegekApp from './EgysegekApp';
 import PoziciokApp from './PoziciokApp';
 import JogosultsagokApp from './JogosultsagokApp';
+import NotificationSettings from './NotificationSettings';
 
 
 import UsersIcon from '../icons/UsersIcon';
@@ -18,6 +19,7 @@ import BriefcaseIcon from '../icons/BriefcaseIcon';
 import ShieldIcon from '../icons/ShieldIcon';
 import SettingsIcon from '../icons/SettingsIcon';
 import CalendarOffIcon from '../icons/CalendarOffIcon';
+import BellIcon from '../icons/BellIcon';
 
 interface AdminisztracioAppProps {
     currentUser: User;
@@ -28,7 +30,7 @@ interface AdminisztracioAppProps {
     canGenerateInvites: boolean;
 }
 
-type AdminTab = 'felhasznalok' | 'meghivok' | 'uzletek' | 'poziciok' | 'jogosultsagok' | 'alkalmazasok';
+type AdminTab = 'felhasznalok' | 'meghivok' | 'uzletek' | 'poziciok' | 'jogosultsagok' | 'alkalmazasok' | 'notifications';
 
 const TABS: { id: AdminTab; label: string; icon: React.FC<{className?: string}>; roles: User['role'][] }[] = [
     { id: 'felhasznalok', label: 'Felhasználók', icon: UsersIcon, roles: ['Admin', 'Unit Admin'] },
@@ -37,6 +39,7 @@ const TABS: { id: AdminTab; label: string; icon: React.FC<{className?: string}>;
     { id: 'poziciok', label: 'Pozíciók', icon: BriefcaseIcon, roles: ['Admin'] },
     { id: 'jogosultsagok', label: 'Jogosultságok', icon: ShieldIcon, roles: ['Admin', 'Unit Admin'] },
     { id: 'alkalmazasok', label: 'Alkalmazások', icon: SettingsIcon, roles: ['Unit Admin'] },
+    { id: 'notifications', label: 'Értesítések', icon: BellIcon, roles: ['Admin'] },
 ];
 
 const APPS_TO_MANAGE = [
@@ -130,6 +133,8 @@ const AdminisztracioApp: React.FC<AdminisztracioAppProps> = (props) => {
                 return <JogosultsagokApp currentUser={currentUser} allPermissions={allPermissions} unitPermissions={unitPermissions} activeUnitId={activeUnitId} />;
             case 'alkalmazasok':
                 return <AppManager unitId={activeUnitId!} disabledApps={unitPermissions[activeUnitId!]?.disabledApps || []} allUnits={allUnits} />;
+            case 'notifications':
+                return <NotificationSettings />;
             default:
                 return null;
         }

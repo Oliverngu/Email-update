@@ -1,6 +1,5 @@
-// src/ui/components/apps/NotificationSettings.tsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { getGlobalNotificationSettings, updateGlobalNotificationSettings, GlobalNotificationSettings } from '../../../core/api/settingsService';
+import { getGlobalNotificationSettings, updateGlobalNotificationSettings, GlobalNotificationSettings } from '../../core/api/settingsService';
 import BellIcon from '../icons/BellIcon';
 import LoadingSpinner from '../LoadingSpinner';
 

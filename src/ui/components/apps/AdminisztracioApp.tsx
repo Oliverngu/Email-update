@@ -134,7 +134,7 @@ const AdminisztracioApp: React.FC<AdminisztracioAppProps> = (props) => {
             case 'alkalmazasok':
                 return <AppManager unitId={activeUnitId!} disabledApps={unitPermissions[activeUnitId!]?.disabledApps || []} allUnits={allUnits} />;
             case 'notifications':
-                return <NotificationSettings currentUser={currentUser} />;
+                return <NotificationSettings />;
             default:
                 return null;
         }
