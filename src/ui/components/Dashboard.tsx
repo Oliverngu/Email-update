@@ -124,7 +124,17 @@ const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
     if (categoryStorageKey && Object.keys(openCategories).length > 0) {
         try {
-            localStorage.setItem(categoryStorageKey, JSON.stringify(openCategories));
+            // Sanitize state to ensure only booleans are stored, preventing circular JSON errors.
+            const sanitizedState: Record<string, boolean> = {};
+            for (const key in openCategories) {
+                if (Object.prototype.hasOwnProperty.call(openCategories, key)) {
+                    const value = openCategories[key];
+                    if (typeof value === 'boolean') {
+                        sanitizedState[key] = value;
+                    }
+                }
+            }
+            localStorage.setItem(categoryStorageKey, JSON.stringify(sanitizedState));
         } catch (e) {
             console.error("Failed to save sidebar state to localStorage", e);
         }
