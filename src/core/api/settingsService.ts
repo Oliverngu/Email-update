@@ -1,6 +1,7 @@
 // src/core/api/settingsService.ts
 import { db } from '../firebase/config';
 import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
+import { ReservationSetting } from '../models/data';
 
 // For user-specific settings
 export const getUserNotificationSettings = async (userId: string) => {

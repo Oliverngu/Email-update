@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Unit, ReservationSetting, User, ThemeSettings, GuestFormSettings } from '../../data/mockData';
+import { Unit, ReservationSetting, User, ThemeSettings, GuestFormSettings, Booking } from '../../data/mockData';
 import { db, Timestamp } from '../../firebase/config';
 import { doc, getDoc, collection, addDoc, setDoc } from 'firebase/firestore';
 import LoadingSpinner from '../LoadingSpinner';
 import CalendarIcon from '../icons/CalendarIcon';
-import CopyIcon from '../icons/CopyIcon'; // Új import
-import { translations } from '../../lib/i18n'; // Import a kiszervezett fájlból
+import CopyIcon from '../icons/CopyIcon'; 
+import { translations } from '../../lib/i18n'; 
+import { sendEmail } from '../../src/core/api/emailService';
 
 type Locale = 'hu' | 'en';
 
@@ -154,7 +155,7 @@ const ReservationPage: React.FC<ReservationPageProps> = ({ unitId, allUnits, cur
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedDate || !formData.startTime) return;
+        if (!selectedDate || !formData.startTime || !unit) return;
         setIsSubmitting(true);
         setError('');
         try {
@@ -170,19 +171,38 @@ const ReservationPage: React.FC<ReservationPageProps> = ({ unitId, allUnits, cur
             const newReservationRef = doc(collection(db, 'units', unitId, 'reservations'));
             const referenceCode = newReservationRef.id;
 
-            const newReservation = {
+            const newReservation: Booking = {
                 unitId, name: formData.name, headcount: parseInt(formData.headcount),
                 occasion: formData.occasion, source: formData.source,
                 startTime: Timestamp.fromDate(startDateTime), endTime: Timestamp.fromDate(endDateTime),
                 contact: { phoneE164: normalizePhone(formData.phone), email: formData.email.trim().toLowerCase() },
                 locale, status: 'pending' as const, createdAt: Timestamp.now(), referenceCode,
+                id: referenceCode,
             };
             await setDoc(newReservationRef, newReservation);
+
+            // Send emails
+            if(newReservation.contact?.email) {
+                await sendEmail({
+                    messageType: 'guest_reservation_confirmation',
+                    locale,
+                    data: { booking: newReservation, unit }
+                });
+            }
+
+            if (settings?.notificationEmails && settings.notificationEmails.length > 0) {
+                 await sendEmail({
+                    messageType: 'unit_new_reservation_notification',
+                    data: { booking: newReservation, unit, notificationEmails: settings.notificationEmails }
+                });
+            }
+
             setSubmittedData({ ...newReservation, date: selectedDate });
             setStep(3);
-        } catch (err) {
+// FIX: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+// Changed `err` to `errorMessage` to avoid type errors with template literals.
+        } catch (err: unknown) {
             console.error("Error submitting reservation:", err);
-            // FIX: Handle unknown error type from catch clause.
             let errorMessage = "Ismeretlen hiba történt";
             if (err instanceof Error) {
                 errorMessage = err.message;
@@ -366,6 +386,7 @@ const Step3Confirmation: React.FC<{ onReset: () => void, themeProps: any, t: any
         <div className={`bg-[var(--color-surface)] p-8 ${themeProps.radiusClass} ${themeProps.shadowClass} border border-gray-100 text-center`}>
             <h2 className="text-2xl font-bold" style={{ color: 'var(--color-success)' }}>{t.step3Title}</h2>
             <p className="text-[var(--color-text-primary)] mt-4">{t.step3Body}</p>
+            <p className="text-sm text-gray-500 mt-2">{t.emailConfirmationSent}</p>
             
             {submittedData && (
                  <div className="mt-6 text-left bg-gray-50 p-4 rounded-lg border">

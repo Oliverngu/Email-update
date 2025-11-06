@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getPollWithResults, castVote } from 'core/api/pollService';
-import { PollWithResults, User } from 'core/models/data';
+import { getPollWithResults, castVote } from '../../../core/api/pollService';
+import { PollWithResults, User } from '../../../core/models/data';
 
 interface PollDetailProps {
   pollId: string;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { User, Request, Shift, Todo, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from 'core/models/data';
+import { User, Request, Shift, Todo, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from '../../core/models/data';
 
 // Import App Components
 import KerelemekApp from './apps/KerelemekApp';
@@ -18,26 +18,26 @@ import PollsApp from './apps/PollsApp';
 import ChatApp from './apps/ChatApp';
 
 // Import Icons
-import HomeIcon from '../icons/HomeIcon';
-import CalendarIcon from '../icons/CalendarIcon';
-import BookingIcon from '../icons/BookingIcon';
-import ScheduleIcon from '../icons/ScheduleIcon';
-import SettingsIcon from '../icons/SettingsIcon';
-import LogoutIcon from '../icons/LogoutIcon';
-import MenuIcon from '../icons/MenuIcon';
-import MintLeafLogo from '../icons/AppleLogo';
+import HomeIcon from './icons/HomeIcon';
+import CalendarIcon from './icons/CalendarIcon';
+import BookingIcon from './icons/BookingIcon';
+import ScheduleIcon from './icons/ScheduleIcon';
+import SettingsIcon from './icons/SettingsIcon';
+import LogoutIcon from './icons/LogoutIcon';
+import MenuIcon from './icons/MenuIcon';
+import MintLeafLogo from './icons/AppleLogo';
 import LoadingSpinner from './LoadingSpinner';
-import TodoIcon from '../icons/TodoIcon';
-import AdminTodoIcon from '../icons/AdminTodoIcon';
-import ContactsIcon from '../icons/ContactsIcon';
-import BookIcon from '../icons/BookIcon';
-import FeedbackIcon from '../icons/FeedbackIcon';
-import MoneyIcon from '../icons/MoneyIcon';
-import AdminIcon from '../icons/AdminIcon';
-import PollsIcon from '../icons/PollsIcon';
-import ChatIcon from '../icons/ChatIcon';
-import { useUnitContext } from 'ui/context/UnitContext';
-import ArrowDownIcon from '../icons/ArrowDownIcon';
+import TodoIcon from './icons/TodoIcon';
+import AdminTodoIcon from './icons/AdminTodoIcon';
+import ContactsIcon from './icons/ContactsIcon';
+import BookIcon from './icons/BookIcon';
+import FeedbackIcon from './icons/FeedbackIcon';
+import MoneyIcon from './icons/MoneyIcon';
+import AdminIcon from './icons/AdminIcon';
+import PollsIcon from './icons/PollsIcon';
+import ChatIcon from './icons/ChatIcon';
+import { useUnitContext } from '../context/UnitContext';
+import ArrowDownIcon from './icons/ArrowDownIcon';
 
 
 interface DashboardProps {

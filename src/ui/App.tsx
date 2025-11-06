@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import Login from 'ui/components/auth/Login';
-import Register from 'ui/components/auth/Register';
-import Dashboard from 'ui/components/Dashboard';
-import ReservationPage from 'ui/components/public/ReservationPage';
-import ManageReservationPage from 'ui/components/public/ManageReservationPage';
-import { User, Request, Shift, Todo, Unit, RolePermissions, Permissions, demoUser, demoData, TimeEntry, Feedback, Poll } from 'core/models/data';
-import { auth, db } from 'core/firebase/config';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import Dashboard from './components/Dashboard';
+import ReservationPage from './components/public/ReservationPage';
+import ManageReservationPage from './components/public/ManageReservationPage';
+import { User, Request, Shift, Todo, Unit, RolePermissions, Permissions, demoUser, demoData, TimeEntry, Feedback, Poll } from '../../core/models/data';
+import { auth, db } from '../../core/firebase/config';
 import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
 import { collection, collectionGroup, doc, getDoc, getDocs, limit, onSnapshot, query, setDoc, where, orderBy } from 'firebase/firestore';
-import LoadingSpinner from 'ui/components/LoadingSpinner';
-import { UnitProvider } from 'ui/context/UnitContext';
+import LoadingSpinner from './components/LoadingSpinner';
+import { UnitProvider } from './context/UnitContext';
 
 type AppState = 'login' | 'register' | 'dashboard' | 'loading' | 'public';
 type LoginMessage = { type: 'success' | 'error'; text: string };

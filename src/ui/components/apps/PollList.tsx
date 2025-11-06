@@ -1,6 +1,6 @@
 import React from 'react';
-import { getPollsForUnit } from 'core/api/pollService';
-import { Poll, User } from 'core/models/data';
+import { getPollsForUnit } from '../../../core/api/pollService';
+import { Poll, User } from '../../../core/models/data';
 
 interface PollListProps {
   currentUser: User;

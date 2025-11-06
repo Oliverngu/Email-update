@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Poll } from 'core/models/data';
+import { User, Poll } from '../../../core/models/data';
 import PollList from './PollList';
 import PollDetail from './PollDetail';
 import CreatePoll from './CreatePoll';

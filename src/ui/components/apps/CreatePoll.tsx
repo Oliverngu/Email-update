@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { createPoll } from 'core/api/pollService';
-import { PollOption, User } from 'core/models/data';
-import { Timestamp } from 'core/firebase/config';
+import { createPoll } from '../../../core/api/pollService';
+import { PollOption, User } from '../../../core/models/data';
+import { Timestamp } from '../../../core/firebase/config';
 
 interface CreatePollProps {
   currentUser: User;

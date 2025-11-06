@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Feedback, User, Unit } from 'core/models/data';
-import { db, serverTimestamp } from 'core/firebase/config';
+import { Feedback, User, Unit } from '../../../core/models/data';
+import { db, serverTimestamp } from '../../../core/firebase/config';
 import { collection, addDoc, doc, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import FeedbackIcon from '../icons/FeedbackIcon';
 import TrashIcon from '../icons/TrashIcon';

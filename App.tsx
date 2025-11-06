@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
-import ReservationPage from './components/public/ReservationPage';
+import ReservationPage from './src/ui/components/public/ReservationPage';
 import ManageReservationPage from './components/public/ManageReservationPage'; // Új import
 import { User, Request, Booking, Shift, Todo, Unit, RolePermissions, Permissions, demoUser, demoUnit, demoData, TimeEntry, Feedback, Poll } from './data/mockData';
 import { auth, db } from './firebase/config';

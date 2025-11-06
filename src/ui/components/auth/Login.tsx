@@ -3,7 +3,7 @@ import MintLeafLogo from '../icons/AppleLogo';
 import ArrowIcon from '../icons/ArrowIcon';
 import EyeIcon from '../icons/EyeIcon';
 import EyeSlashIcon from '../icons/EyeSlashIcon';
-import { auth, db } from 'core/firebase/config';
+import { auth, db } from '../../../core/firebase/config';
 import { setPersistence, signInWithEmailAndPassword, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { collection, query, where, limit, getDocs } from 'firebase/firestore';
 
