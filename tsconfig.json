@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
@@ -14,15 +18,28 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
+    "baseUrl": "src",
     "paths": {
       "@/*": [
-        "src/*"
+        "./*"
       ]
     }
   },
   "include": [
-    "src",
-    "vite.config.ts"
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "backend",
+    "components",
+    "context",
+    "data",
+    "firebase",
+    "lib",
+    "App.tsx",
+    "Dashboard.tsx",
+    "HomeDashboard.tsx",
+    "index.tsx"
   ]
 }
