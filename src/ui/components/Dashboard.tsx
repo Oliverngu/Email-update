@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
-import { User, Request, Booking, Shift, Todo, Contact, ContactCategory, Position, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from '../../core/models/data';
-import { db } from '../../core/firebase/config';
+import { User, Request, Booking, Shift, Todo, Contact, ContactCategory, Position, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from '../../../core/models/data';
+import { db } from '../../../core/firebase/config';
 
 // Import App Components
 import KerelemekApp from './apps/KerelemekApp';
@@ -231,7 +231,12 @@ const Dashboard: React.FC<DashboardProps> = ({
   const NavItem: React.FC<NavItemProps> = ({ app, icon: Icon, label, permission, disabledAppCheck = true }) => {
     if (permission && !hasPermission(permission)) return null;
     
-    const isAppDisabled = disabledAppCheck && activeUnitIds.some(unitId => unitPermissions[unitId]?.disabledApps?.includes(app));
+    const isAppDisabled = disabledAppCheck && activeUnitIds.some(unitId => {
+      const perms = unitPermissions[unitId];
+      // Safely check if disabledApps exists and is an array before calling .includes()
+      return perms && Array.isArray(perms.disabledApps) && perms.disabledApps.includes(app);
+    });
+
     if (isAppDisabled && currentUser.role !== 'Admin') return null;
 
     return (

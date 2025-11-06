@@ -199,7 +199,6 @@ const ReservationPage: React.FC<ReservationPageProps> = ({ unitId, allUnits, cur
 
             setSubmittedData({ ...newReservation, date: selectedDate });
             setStep(3);
-// FIX: Rewrote catch block to handle 'unknown' type error safely.
         } catch (err: unknown) {
             console.error("Error submitting reservation:", err);
             let errorMessage = "Ismeretlen hiba.";

@@ -1,15 +1,16 @@
 import React from 'react';
-import CalendarOffIcon from '../icons/CalendarOffIcon';
+import { User, Unit } from '../../../core/models/data';
 
-const ReservationSettingsApp: React.FC = () => {
+interface ReservationSettingsAppProps {
+    currentUser: User;
+    allUnits: Unit[];
+}
+
+const ReservationSettingsApp: React.FC<ReservationSettingsAppProps> = (props) => {
     return (
-        <div className="p-8 text-center bg-white rounded-2xl shadow-lg border border-gray-100">
-            <CalendarOffIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-700">A beállítások átkerültek</h2>
-            <p className="mt-2 text-gray-600">
-                A foglalási beállításokat, beleértve a blackout napokat is, mostantól a 'Foglalások' menüponton belül,
-                a vendégoldalra navigálva, a fogaskerék ikonra kattintva lehet kezelni.
-            </p>
+        <div className="p-4 md:p-8">
+            <h1 className="text-2xl font-bold">Foglalási beállítások</h1>
+            <p className="text-gray-600">Itt tudod kezelni a foglalási rendszert.</p>
         </div>
     );
 };

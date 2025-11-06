@@ -3,38 +3,31 @@ import { Poll, User } from '../../../core/models/data';
 
 interface PollListProps {
   currentUser: User;
-  onSelectPoll: (pollId: string) => void;
   polls: Poll[];
+  onSelectPoll: (pollId: string) => void;
 }
 
-const PollList: React.FC<PollListProps> = ({ currentUser, onSelectPoll, polls }) => {
-
-  if (!currentUser.unitIds || currentUser.unitIds.length === 0) {
-    return <p>Nincs egységhez rendelve, így nem láthatsz szavazásokat.</p>
-  }
-
+const PollList: React.FC<PollListProps> = ({ polls, onSelectPoll }) => {
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Aktuális szavazások</h2>
-      {polls.length === 0 ? (
-        <p>Nincsenek aktív szavazások ebben az egységben.</p>
-      ) : (
-        <div className="space-y-3">
-          {polls.map(poll => {
-            const isClosed = poll.closesAt && poll.closesAt.toDate() < new Date();
-            return (
-              <div
-                key={poll.id}
-                onClick={() => onSelectPoll(poll.id)}
-                className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
-              >
+    <div className="space-y-4">
+      {polls.length > 0 ? polls.map(poll => {
+        const isClosed = poll.closesAt && poll.closesAt.toDate() < new Date();
+        return (
+            <div 
+                key={poll.id} 
+                onClick={() => onSelectPoll(poll.id)} 
+                className="p-4 bg-white rounded-lg shadow-sm border cursor-pointer hover:shadow-md transition-shadow"
+            >
                 <div className="flex justify-between items-center">
-                    <p className="font-semibold">{poll.question}</p>
-                    {isClosed && <span className="text-sm font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full">Lezárva</span>}
+                    <p className="font-semibold text-lg text-gray-800">{poll.question}</p>
+                    {isClosed && <span className="text-xs font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded-full">Lezárva</span>}
                 </div>
-              </div>
-            );
-          })}
+                <p className="text-sm text-gray-500 mt-1">Lezárul: {poll.closesAt ? poll.closesAt.toDate().toLocaleString('hu-HU') : 'Nincs határidő'}</p>
+            </div>
+        )
+      }) : (
+        <div className="text-center py-10 bg-white rounded-lg border">
+            <p className="text-gray-600">Nincsenek szavazások a kiválasztott egység(ek)ben.</p>
         </div>
       )}
     </div>

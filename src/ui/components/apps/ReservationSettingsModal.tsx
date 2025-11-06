@@ -25,7 +25,6 @@ const DEFAULT_GUEST_FORM: GuestFormSettings = {
 
 type SettingsTab = 'általános' | 'űrlap' | 'téma';
 
-// FIX: Added missing helper functions for contrast ratio calculation.
 const getLuminance = (hex: string) => {
     const rgb = parseInt(hex.slice(1), 16);
     let r = (rgb >> 16) & 0xff;
@@ -357,5 +356,4 @@ const ThemePreview: FC<{theme: ThemeSettings}> = ({ theme }) => {
     );
 };
 
-// FIX: Added default export
 export default ReservationSettingsModal;

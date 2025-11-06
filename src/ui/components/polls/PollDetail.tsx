@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getPollWithResults, castVote } from '../../../core/api/pollService';
 import { PollWithResults, User } from '../../../core/models/data';
+import LoadingSpinner from '../LoadingSpinner';
 
 interface PollDetailProps {
   pollId: string;
@@ -51,7 +52,7 @@ const PollDetail: React.FC<PollDetailProps> = ({ pollId, currentUser, onBack }) 
     }
   };
   
-  if (loading) return <p>Betöltés...</p>;
+  if (loading) return <div className="relative h-64"><LoadingSpinner /></div>;
   if (!poll) return <p>A szavazás nem található.</p>;
 
   const isPollClosed = poll.closesAt && poll.closesAt.toDate() < new Date();
@@ -61,25 +62,25 @@ const PollDetail: React.FC<PollDetailProps> = ({ pollId, currentUser, onBack }) 
     <div>
       <h3 className="text-xl font-semibold mb-2">Eredmények</h3>
       <p className="text-sm text-gray-600 mb-4">Összesen {poll.totalVotes} szavazat.</p>
-      <div className="space-y-3">
+      <div className="space-y-4">
         {poll.options.map(option => {
           const voteCount = poll.results[option.id] || 0;
           const percentage = poll.totalVotes > 0 ? (voteCount / poll.totalVotes) * 100 : 0;
           const didUserVoteForThis = poll.userVote?.includes(option.id);
           return (
             <div key={option.id}>
-              <div className="flex justify-between items-center mb-1">
-                <p className={`font-semibold ${didUserVoteForThis ? 'text-blue-600' : ''}`}>
+              <div className="flex justify-between items-center mb-1 text-sm">
+                <p className={`font-semibold ${didUserVoteForThis ? 'text-green-700' : 'text-gray-700'}`}>
                     {option.label}
                     {didUserVoteForThis && ' (a te szavazatod)'}
                 </p>
-                <span className="font-bold">{voteCount} szavazat</span>
+                <span className="font-bold text-gray-800">{voteCount} szavazat</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-4">
+              <div className="w-full bg-gray-200 rounded-full h-4 relative overflow-hidden">
                 <div 
-                    className="bg-green-600 h-4 rounded-full text-xs font-medium text-blue-100 text-center p-0.5 leading-none" 
+                    className="bg-green-600 h-4 rounded-full text-xs font-medium text-white text-right pr-2 transition-all duration-500" 
                     style={{ width: `${percentage}%` }}>
-                   {percentage > 10 && `${percentage.toFixed(0)}%`}
+                   {percentage > 15 && `${percentage.toFixed(0)}%`}
                 </div>
               </div>
             </div>
@@ -94,23 +95,23 @@ const PollDetail: React.FC<PollDetailProps> = ({ pollId, currentUser, onBack }) 
       <h3 className="text-xl font-semibold mb-4">Szavazz!</h3>
       <div className="space-y-2">
         {poll.options.map(option => (
-          <label key={option.id} className="flex items-center gap-3 p-3 border rounded-lg">
+          <label key={option.id} className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
             <input
               type={poll.multipleChoice ? 'checkbox' : 'radio'}
               name="pollOption"
               checked={selectedOptions.includes(option.id)}
               onChange={() => handleSelectionChange(option.id)}
-              className="h-5 w-5"
+              className="h-5 w-5 text-green-600 focus:ring-green-500"
             />
-            <span>{option.label}</span>
+            <span className="font-medium text-gray-800">{option.label}</span>
           </label>
         ))}
       </div>
-      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {error && <p className="text-red-500 mt-4 font-semibold">{error}</p>}
       <button 
         onClick={handleVote} 
-        disabled={isVoting}
-        className="mt-4 p-2 bg-blue-600 text-white rounded w-full disabled:bg-gray-400"
+        disabled={isVoting || selectedOptions.length === 0}
+        className="mt-6 w-full font-semibold py-2 px-4 rounded-lg text-white bg-green-700 hover:bg-green-800 disabled:bg-gray-400 transition-colors"
        >
         {isVoting ? 'Szavazás...' : 'Szavazat elküldése'}
       </button>
@@ -119,9 +120,9 @@ const PollDetail: React.FC<PollDetailProps> = ({ pollId, currentUser, onBack }) 
 
   return (
     <div>
-      <button onClick={onBack} className="mb-4 text-blue-600">&larr; Vissza a listához</button>
-      <div className="p-4 border rounded-lg">
-        <h2 className="text-2xl font-bold">{poll.question}</h2>
+      <button onClick={onBack} className="mb-4 text-green-700 font-semibold hover:underline">&larr; Vissza a listához</button>
+      <div className="p-6 bg-white border rounded-lg shadow-sm">
+        <h2 className="text-2xl font-bold text-gray-800">{poll.question}</h2>
         {isPollClosed && <p className="text-red-600 font-semibold my-2">Ez a szavazás lezárult.</p>}
         <hr className="my-4" />
         {hasVoted || isPollClosed ? renderResults() : renderVotingForm()}

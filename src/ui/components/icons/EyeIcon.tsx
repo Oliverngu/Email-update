@@ -1,6 +1,5 @@
 import React from 'react';
 
-// FIX: Update component to accept a className prop for flexible styling.
 const EyeIcon: React.FC<{ className?: string }> = ({ className = "h-5 w-5" }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
