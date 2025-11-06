@@ -14,35 +14,35 @@ import TudastarApp from './apps/TudastarApp';
 import VelemenyekApp from './apps/VelemenyekApp';
 import BerezesemApp from './apps/BerezesemApp';
 import { AdminisztracioApp } from './apps/AdminisztracioApp';
-import HomeDashboard from './HomeDashboard';
-import PollsApp from './polls/PollsApp';
+import HomeDashboard from '../HomeDashboard';
+import PollsApp from './apps/PollsApp';
 import ChatApp from './apps/ChatApp';
 
 // Import Icons
-import HomeIcon from './icons/HomeIcon';
-import CalendarIcon from './icons/CalendarIcon';
-import BookingIcon from './icons/BookingIcon';
-import ScheduleIcon from './icons/ScheduleIcon';
-import SettingsIcon from './icons/SettingsIcon';
-import LogoutIcon from './icons/LogoutIcon';
-import MenuIcon from './icons/MenuIcon';
-import MintLeafLogo from './icons/AppleLogo';
-import LoadingSpinner from './LoadingSpinner';
-import TodoIcon from './icons/TodoIcon';
-import AdminTodoIcon from './icons/AdminTodoIcon';
-import ContactsIcon from './icons/ContactsIcon';
-import BookIcon from './icons/BookIcon';
-import FeedbackIcon from './icons/FeedbackIcon';
-import MoneyIcon from './icons/MoneyIcon';
-import AdminIcon from './icons/AdminIcon';
-import PollsIcon from './icons/PollsIcon';
-import ChatIcon from './icons/ChatIcon';
+import HomeIcon from '../icons/HomeIcon';
+import CalendarIcon from '../icons/CalendarIcon';
+import BookingIcon from '../icons/BookingIcon';
+import ScheduleIcon from '../icons/ScheduleIcon';
+import SettingsIcon from '../icons/SettingsIcon';
+import LogoutIcon from '../icons/LogoutIcon';
+import MenuIcon from '../icons/MenuIcon';
+import MintLeafLogo from '../icons/AppleLogo';
+import LoadingSpinner from '../LoadingSpinner';
+import TodoIcon from '../icons/TodoIcon';
+import AdminTodoIcon from '../icons/AdminTodoIcon';
+import ContactsIcon from '../icons/ContactsIcon';
+import BookIcon from '../icons/BookIcon';
+import FeedbackIcon from '../icons/FeedbackIcon';
+import MoneyIcon from '../icons/MoneyIcon';
+import AdminIcon from '../icons/AdminIcon';
+import PollsIcon from '../icons/PollsIcon';
+import ChatIcon from '../icons/ChatIcon';
 import { useUnitContext } from 'ui/context/UnitContext';
-import UserIcon from './icons/UserIcon';
-import ArrowDownIcon from './icons/ArrowDownIcon';
-import InvitationIcon from './icons/InvitationIcon';
-import BuildingIcon from './icons/BuildingIcon';
-import CalendarOffIcon from './icons/CalendarOffIcon';
+import UserIcon from '../icons/UserIcon';
+import ArrowDownIcon from '../icons/ArrowDownIcon';
+import InvitationIcon from '../icons/InvitationIcon';
+import BuildingIcon from '../icons/BuildingIcon';
+import CalendarOffIcon from '../icons/CalendarOffIcon';
 
 
 interface DashboardProps {
@@ -123,20 +123,21 @@ const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
     if (categoryStorageKey) {
         try {
-            // Prevent stringifying if the state is not a valid object, which could happen during hydration or state corruption.
             if (typeof openCategories !== 'object' || openCategories === null || Array.isArray(openCategories)) {
                 return;
             }
-            
-            const sanitizedState = Object.keys(openCategories).reduce((acc, key) => {
-                const value = openCategories[key as keyof typeof openCategories];
-                if (typeof value === 'boolean') {
-                    acc[key] = value;
-                }
-                return acc;
-            }, {} as Record<string, boolean>);
 
-            localStorage.setItem(categoryStorageKey, JSON.stringify(sanitizedState));
+            const stateToSave: Record<string, boolean> = {};
+            for (const key in openCategories) {
+                if (Object.prototype.hasOwnProperty.call(openCategories, key)) {
+                    const value = openCategories[key];
+                    if (typeof value === 'boolean') {
+                        stateToSave[key] = value;
+                    }
+                }
+            }
+            
+            localStorage.setItem(categoryStorageKey, JSON.stringify(stateToSave));
         } catch (e) {
             console.error("Failed to save sidebar state to localStorage due to a possible circular reference.", e);
         }
@@ -158,6 +159,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const hasPermission = (permission: keyof Permissions | 'canManageAdminPage'): boolean => {
     if (currentUser.role === 'Admin') return true;
     if (currentUser.role === 'Demo User') { 
+        // FIX: Added type check for 'permission' to satisfy strict TypeScript rules.
         if (typeof permission === 'string') {
             return permission.startsWith('canView') || permission === 'canSubmitLeaveRequests';
         }
