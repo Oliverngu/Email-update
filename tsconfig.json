@@ -31,15 +31,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "backend",
-    "components",
-    "context",
-    "data",
-    "firebase",
-    "lib",
-    "App.tsx",
-    "Dashboard.tsx",
-    "HomeDashboard.tsx",
-    "index.tsx"
+    "backend"
   ]
 }

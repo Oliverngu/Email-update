@@ -233,8 +233,8 @@ const Dashboard: React.FC<DashboardProps> = ({
     
     const isAppDisabled = disabledAppCheck && activeUnitIds.some(unitId => {
       const perms = unitPermissions[unitId];
-      // Safely check if disabledApps exists and is an array before calling .includes()
-      return perms && Array.isArray(perms.disabledApps) && perms.disabledApps.includes(app);
+      // Safely check if perms is an object and disabledApps exists and is an array before calling .includes()
+      return perms && typeof perms === 'object' && Array.isArray(perms.disabledApps) && perms.disabledApps.includes(app);
     });
 
     if (isAppDisabled && currentUser.role !== 'Admin') return null;

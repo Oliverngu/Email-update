@@ -1,5 +1,18 @@
 // src/core/config/emailConfig.ts
 
+// FIX: The `/// <reference types="vite/client" />` directive can be unreliable.
+// Replaced it with a global declaration for `ImportMeta` to provide the necessary
+// types for `import.meta.env` directly in this file, preventing a potential
+// "Cannot read properties of undefined" crash on startup.
+declare global {
+  interface ImportMeta {
+    readonly env: {
+      readonly VITE_RESEND_API_KEY?: string;
+      readonly PROD: boolean;
+    };
+  }
+}
+
 type EmailProviderType = "mock" | "resend";
 
 interface EmailProviderConfig {
@@ -8,9 +21,9 @@ interface EmailProviderConfig {
   fromDefault: string;
 }
 
-// Determine provider based on environment.
-// Fallback to "mock" if NODE_ENV is not 'production' or if RESEND_API_KEY is missing.
-const isProductionReady = process.env.NODE_ENV === "production" && !!process.env.RESEND_API_KEY;
+// In Vite, environment variables exposed to the client must be prefixed with VITE_.
+// import.meta.env.PROD is a boolean that is true when in production.
+const isProductionReady = import.meta.env.PROD && !!import.meta.env.VITE_RESEND_API_KEY;
 
 export const emailProviderConfig: EmailProviderConfig = {
   // To enable real emails in a production build, this will be automatically set to "resend".
@@ -21,5 +34,5 @@ export const emailProviderConfig: EmailProviderConfig = {
   
   // The API key for the selected provider.
   // This should be set via environment variables in a production environment.
-  apiKey: process.env.RESEND_API_KEY, 
+  apiKey: import.meta.env.VITE_RESEND_API_KEY, 
 };

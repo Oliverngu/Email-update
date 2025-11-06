@@ -3,8 +3,10 @@
 // like Prisma Client, a Knex instance, or a Mongoose connection.
 
 // This mock simulates the Prisma Client API for demonstration purposes.
-// FIX: Use ES module import for consistency and to resolve 'require' not found error.
-import { randomUUID } from 'crypto';
+// FIX: The Node.js 'crypto' module is not available in the browser. 
+// This file was being incorrectly bundled with the frontend, causing a crash.
+// The Node-specific import has been removed, and the code now uses the
+// browser-standard `crypto.randomUUID()` to prevent a startup failure.
 
 const dbStore: {
     shifts: any[];
@@ -31,7 +33,7 @@ const mockDbClient = {
         },
         create: async (query: { data: any }) => {
             console.log('[DB MOCK] create shift:', query);
-            const newShift = { id: randomUUID(), ...query.data };
+            const newShift = { id: crypto.randomUUID(), ...query.data };
             dbStore.shifts.push(newShift);
             return newShift;
         },
