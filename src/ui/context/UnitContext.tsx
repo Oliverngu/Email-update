@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useMemo, ReactNode, FC, useEffect, useCallback } from 'react';
-import { User, Unit } from '../../core/models/data';
+import { User, Unit } from 'core/models/data';
 
 interface UnitContextType {
   allUnits: Unit[];

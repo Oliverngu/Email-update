@@ -8,7 +8,7 @@ import FelhasznalokApp from './FelhasznalokApp';
 import MeghivokApp from './MeghivokApp';
 import EgysegekApp from './EgysegekApp';
 import PoziciokApp from './PoziciokApp';
-import JogosultsagokApp from './JogosultsagokApp';
+import { JogosultsagokApp } from './JogosultsagokApp';
 import NotificationSettings from './NotificationSettings';
 
 
@@ -105,7 +105,7 @@ const AppManager: React.FC<{ unitId: string; disabledApps: string[]; allUnits: U
 };
 
 
-const AdminisztracioApp: React.FC<AdminisztracioAppProps> = (props) => {
+export const AdminisztracioApp: React.FC<AdminisztracioAppProps> = (props) => {
     const { currentUser, activeUnitId, unitPermissions, allUnits, allPermissions } = props;
     const availableTabs = TABS.filter(tab => tab.roles.includes(currentUser.role));
     const [activeTab, setActiveTab] = useState<AdminTab>(availableTabs[0]?.id || 'felhasznalok');
@@ -170,5 +170,3 @@ const AdminisztracioApp: React.FC<AdminisztracioAppProps> = (props) => {
         </div>
     );
 };
-
-export default AdminisztracioApp;

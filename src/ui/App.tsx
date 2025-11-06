@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import Login from './components/Login';
-import Register from './components/Register';
-import Dashboard from './components/Dashboard';
-import ReservationPage from './components/public/ReservationPage';
-import ManageReservationPage from './components/public/ManageReservationPage'; // Új import
-import { User, Request, Booking, Shift, Todo, Unit, RolePermissions, Permissions, demoUser, demoUnit, demoData, TimeEntry, Feedback, Poll } from '../core/models/data';
-import { auth, db } from '../core/firebase/config';
+import Login from 'ui/components/auth/Login';
+import Register from 'ui/components/auth/Register';
+import Dashboard from 'ui/components/Dashboard';
+import ReservationPage from 'ui/components/public/ReservationPage';
+import ManageReservationPage from 'ui/components/public/ManageReservationPage';
+import { User, Request, Booking, Shift, Todo, Unit, RolePermissions, Permissions, demoUser, demoUnit, demoData, TimeEntry, Feedback, Poll } from 'core/models/data';
+import { auth, db } from 'core/firebase/config';
 import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
 import { collection, collectionGroup, doc, getDoc, getDocs, limit, onSnapshot, query, setDoc, where, orderBy } from 'firebase/firestore';
-import LoadingSpinner from './components/LoadingSpinner';
-import { UnitProvider } from './context/UnitContext';
+import LoadingSpinner from 'ui/components/LoadingSpinner';
+import { UnitProvider } from 'ui/context/UnitContext';
 
 type AppState = 'login' | 'register' | 'dashboard' | 'loading' | 'public';
 type LoginMessage = { type: 'success' | 'error'; text: string };
-// Bővítettük a PublicPage típust a 'manage' állapottal
 type PublicPage = { type: 'reserve'; unitId: string } | { type: 'manage'; token: string } | { type: 'error'; message: string };
 
 const App: React.FC = () => {
@@ -46,7 +45,7 @@ const App: React.FC = () => {
     const isDemo = urlParams.get('demo') === 'true';
     const registerCode = urlParams.get('register');
     const isReservePage = pathname.startsWith('/reserve');
-    const isManagePage = pathname.startsWith('/manage'); // Új ellenőrzés
+    const isManagePage = pathname.startsWith('/manage');
 
     if (isManagePage) {
         const token = urlParams.get('token');

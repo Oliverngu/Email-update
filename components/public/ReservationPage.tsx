@@ -182,8 +182,11 @@ const ReservationPage: React.FC<ReservationPageProps> = ({ unitId, allUnits, cur
             setStep(3);
         } catch (err) {
             console.error("Error submitting reservation:", err);
-            // Fix: Handled unknown error type in catch block.
-            const errorMessage = err instanceof Error ? err.message : String(err);
+            // FIX: Handle unknown error type from catch clause.
+            let errorMessage = "Ismeretlen hiba történt";
+            if (err instanceof Error) {
+                errorMessage = err.message;
+            }
             setError(`Hiba történt a foglalás elküldése során: ${errorMessage}. Kérjük, próbálja meg később.`);
         } finally {
             setIsSubmitting(false);

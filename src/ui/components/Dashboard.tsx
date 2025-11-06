@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
-import { User, Request, Booking, Shift, Todo, Contact, ContactCategory, Position, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from '../../core/models/data';
-import { db } from '../../core/firebase/config';
+import { User, Request, Booking, Shift, Todo, Contact, ContactCategory, Position, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from 'core/models/data';
+import { db } from 'core/firebase/config';
 
 // Import App Components
 import KerelemekApp from './apps/KerelemekApp';
 import FoglalasokApp from './apps/FoglalasokApp';
 import { BeosztasApp } from './apps/BeosztasKeszitoApp';
-import UserSettingsApp from './UserSettingsApp';
+import UserSettingsApp from './apps/UserSettingsApp';
 import TodoApp from './apps/TodoApp';
 import AdminTodoApp from './apps/AdminTodoApp';
 import ContactsApp from './apps/ContactsApp';
 import TudastarApp from './apps/TudastarApp';
 import VelemenyekApp from './apps/VelemenyekApp';
 import BerezesemApp from './apps/BerezesemApp';
-import AdminisztracioApp from './apps/AdminisztracioApp';
+import { AdminisztracioApp } from './apps/AdminisztracioApp';
 import HomeDashboard from './HomeDashboard';
 import PollsApp from './polls/PollsApp';
 import ChatApp from './apps/ChatApp';
@@ -37,7 +37,7 @@ import MoneyIcon from './icons/MoneyIcon';
 import AdminIcon from './icons/AdminIcon';
 import PollsIcon from './icons/PollsIcon';
 import ChatIcon from './icons/ChatIcon';
-import { useUnitContext } from '../context/UnitContext';
+import { useUnitContext } from 'ui/context/UnitContext';
 import UserIcon from './icons/UserIcon';
 import ArrowDownIcon from './icons/ArrowDownIcon';
 import InvitationIcon from './icons/InvitationIcon';
