@@ -52,7 +52,7 @@ const ManageReservationPage: React.FC<ManageReservationPageProps> = ({ token, al
                         setLocale(foundBooking.locale || 'hu');
                     }
                 }
-            } catch (err) {
+            } catch (err: any) {
                 console.error("Error fetching reservation:", err);
                 setError('Hiba a foglalás betöltésekor. Ellenőrizze a linket, vagy próbálja meg később.');
             } finally {

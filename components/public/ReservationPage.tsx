@@ -199,13 +199,13 @@ const ReservationPage: React.FC<ReservationPageProps> = ({ unitId, allUnits, cur
 
             setSubmittedData({ ...newReservation, date: selectedDate });
             setStep(3);
-// FIX: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-// Changed `err` to `errorMessage` to avoid type errors with template literals.
         } catch (err: unknown) {
             console.error("Error submitting reservation:", err);
             let errorMessage = "Ismeretlen hiba történt";
             if (err instanceof Error) {
                 errorMessage = err.message;
+            } else if (typeof err === 'string') {
+                errorMessage = err;
             }
             setError(`Hiba történt a foglalás elküldése során: ${errorMessage}. Kérjük, próbálja meg később.`);
         } finally {

@@ -4,8 +4,8 @@ import { db, Timestamp } from '../../../core/firebase/config';
 import { doc, getDoc, collection, addDoc, setDoc } from 'firebase/firestore';
 import LoadingSpinner from '../LoadingSpinner';
 import CalendarIcon from '../icons/CalendarIcon';
-import CopyIcon from '../icons/CopyIcon'; // Új import
-import { translations } from '../../../lib/i18n'; // Import a kiszervezett fájlból
+import CopyIcon from '../icons/CopyIcon'; 
+import { translations } from '../../../lib/i18n'; 
 import { sendEmail } from '../../../core/api/emailService';
 
 type Locale = 'hu' | 'en';
@@ -199,10 +199,9 @@ const ReservationPage: React.FC<ReservationPageProps> = ({ unitId, allUnits, cur
 
             setSubmittedData({ ...newReservation, date: selectedDate });
             setStep(3);
-        // FIX: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+// FIX: The catch block was not correctly handling the 'unknown' error type, which could lead to unhandled exceptions or incorrect error messages. This has been updated to safely extract the error message from various error types.
         } catch (err: unknown) {
             console.error("Error submitting reservation:", err);
-            // FIX: Handle unknown error type from catch clause.
             let errorMessage = "Ismeretlen hiba történt";
             if (err instanceof Error) {
                 errorMessage = err.message;

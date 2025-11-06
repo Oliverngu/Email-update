@@ -2,19 +2,19 @@ import React, { useState, useMemo, useCallback, useEffect, FC, useRef } from 're
 import { Shift, Request, User, Unit, Position, ScheduleSettings, ExportStyleSettings } from '../../../core/models/data';
 import { db, Timestamp } from '../../../core/firebase/config';
 import { collection, doc, onSnapshot, orderBy, writeBatch, updateDoc, addDoc, deleteDoc, setDoc, query, getDoc } from 'firebase/firestore';
-import LoadingSpinner from '../../LoadingSpinner';
-import PencilIcon from '../../icons/PencilIcon';
-import TrashIcon from '../../icons/TrashIcon';
-import PlusIcon from '../../icons/PlusIcon';
-import DownloadIcon from '../../icons/DownloadIcon';
+import LoadingSpinner from '../LoadingSpinner';
+import PencilIcon from '../icons/PencilIcon';
+import TrashIcon from '../icons/TrashIcon';
+import PlusIcon from '../icons/PlusIcon';
+import DownloadIcon from '../icons/DownloadIcon';
 import { generateExcelExport } from './ExportModal';
-import SettingsIcon from '../../icons/SettingsIcon';
+import SettingsIcon from '../icons/SettingsIcon';
 import html2canvas from 'html2canvas';
-import ImageIcon from '../../icons/ImageIcon';
-import ArrowUpIcon from '../../icons/ArrowUpIcon';
-import ArrowDownIcon from '../../icons/ArrowDownIcon';
-import EyeSlashIcon from '../../icons/EyeSlashIcon';
-import EyeIcon from '../../icons/EyeIcon';
+import ImageIcon from '../icons/ImageIcon';
+import ArrowUpIcon from '../icons/ArrowUpIcon';
+import ArrowDownIcon from '../icons/ArrowDownIcon';
+import EyeSlashIcon from '../icons/EyeSlashIcon';
+import EyeIcon from '../icons/EyeIcon';
 import { sendEmail } from '../../../core/api/emailService';
 
 // FIX: Added missing helper functions, constants, interfaces, and components.
