@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Unit, Position, User } from 'core/models/data';
-import { db } from 'core/firebase/config';
+import { Unit, Position, User } from '../../../core/models/data';
+import { db } from '../../../core/firebase/config';
 import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import { initializeApp, getApp, getApps, deleteApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth';

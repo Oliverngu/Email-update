@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Booking } from 'core/models/data';
-import { Timestamp } from 'core/firebase/config';
+import { Booking } from '../../../core/models/data';
+import { Timestamp } from '../../../core/firebase/config';
 
 export type BookingFormData = Omit<Booking, 'id' | 'createdAt' | 'status' | 'startTime' | 'endTime'> & {
     date: string;

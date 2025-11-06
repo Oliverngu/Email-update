@@ -3,10 +3,10 @@ import { Unit, User, Invitation } from '../../../core/models/data';
 import { db, storage, serverTimestamp } from '../../../core/firebase/config';
 import { collection, onSnapshot, orderBy, query, doc, writeBatch, deleteDoc, updateDoc, deleteField } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import LoadingSpinner from '../../LoadingSpinner';
-import BuildingIcon from '../../icons/BuildingIcon';
-import TrashIcon from '../../icons/TrashIcon';
-import CopyIcon from '../../icons/CopyIcon';
+import LoadingSpinner from '../LoadingSpinner';
+import BuildingIcon from '../icons/BuildingIcon';
+import TrashIcon from '../icons/TrashIcon';
+import CopyIcon from '../icons/CopyIcon';
 
 const EgysegekApp: React.FC = () => {
     const [units, setUnits] = useState<Unit[]>([]);

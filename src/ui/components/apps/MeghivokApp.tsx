@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Invitation, Unit, Position } from '../../../core/models/data';
 import { db, serverTimestamp } from '../../../core/firebase/config';
 import { collection, doc, onSnapshot, orderBy, query, setDoc } from 'firebase/firestore';
-import LoadingSpinner from '../../LoadingSpinner';
-import InvitationIcon from '../../icons/InvitationIcon';
-import CopyIcon from '../../icons/CopyIcon';
+import LoadingSpinner from '../LoadingSpinner';
+import InvitationIcon from '../icons/InvitationIcon';
+import CopyIcon from '../icons/CopyIcon';
 
 const MeghivokApp: React.FC = () => {
     const [invitations, setInvitations] = useState<Invitation[]>([]);

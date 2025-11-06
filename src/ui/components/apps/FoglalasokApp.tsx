@@ -7,7 +7,8 @@ import LoadingSpinner from '../LoadingSpinner';
 import AddBookingModal from './AddBookingModal';
 import PlusIcon from '../icons/PlusIcon';
 import SettingsIcon from '../icons/SettingsIcon';
-import ReservationSettingsModal from './ReservationSettingsModal';
+// FIX: Module '"file:///src/ui/components/apps/ReservationSettingsModal"' has no default export. Use named import.
+import { ReservationSettingsModal } from './ReservationSettingsModal';
 import TrashIcon from '../icons/TrashIcon';
 
 interface FoglalasokAppProps {
@@ -73,7 +74,7 @@ const BookingDetailsModal: React.FC<{
             {selectedDate.toLocaleDateString('hu-HU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </h2>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 text-gray-500">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>

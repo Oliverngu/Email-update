@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { RolePermissions, Permissions, User } from 'core/models/data';
-import { db } from 'core/firebase/config';
+import { RolePermissions, Permissions, User } from '../../../core/models/data';
+import { db } from '../../../core/firebase/config';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import LoadingSpinner from '../LoadingSpinner';
 import ShieldIcon from '../icons/ShieldIcon';

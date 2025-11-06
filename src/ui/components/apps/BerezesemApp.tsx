@@ -2,13 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { User, Shift, TimeEntry, Unit } from '../../../core/models/data';
 import { db, Timestamp } from '../../../core/firebase/config';
 import { doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection } from 'firebase/firestore';
-import LoadingSpinner from '../../LoadingSpinner';
-import MoneyIcon from '../../icons/MoneyIcon';
-import PencilIcon from '../../icons/PencilIcon';
-import TrashIcon from '../../icons/TrashIcon';
-import PlusIcon from '../../icons/PlusIcon';
-import ScheduleIcon from '../../icons/ScheduleIcon';
-import ArrowDownIcon from '../../icons/ArrowDownIcon';
+import LoadingSpinner from '../LoadingSpinner';
+import MoneyIcon from '../icons/MoneyIcon';
+import PencilIcon from '../icons/PencilIcon';
+import TrashIcon from '../icons/TrashIcon';
+import PlusIcon from '../icons/PlusIcon';
+import ScheduleIcon from '../icons/ScheduleIcon';
+import ArrowDownIcon from '../icons/ArrowDownIcon';
 
 interface BerezesemAppProps {
   currentUser: User;

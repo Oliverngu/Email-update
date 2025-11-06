@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { User } from 'core/models/data';
-import { auth, db } from 'core/firebase/config';
+import { User } from '../../../core/models/data';
+import { auth, db } from '../../../core/firebase/config';
 import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import EyeIcon from '../icons/EyeIcon';

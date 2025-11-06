@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Position, User } from '../../../core/models/data';
 import { db } from '../../../core/firebase/config';
 import { collection, onSnapshot, orderBy, query, addDoc, deleteDoc, doc } from 'firebase/firestore';
-import LoadingSpinner from '../../LoadingSpinner';
-import BriefcaseIcon from '../../icons/BriefcaseIcon';
-import TrashIcon from '../../icons/TrashIcon';
+import LoadingSpinner from '../LoadingSpinner';
+import BriefcaseIcon from '../icons/BriefcaseIcon';
+import TrashIcon from '../icons/TrashIcon';
 
 const PoziciokApp: React.FC = () => {
     const [positions, setPositions] = useState<Position[]>([]);

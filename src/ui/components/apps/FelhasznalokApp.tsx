@@ -2,13 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { User, Unit, Position } from '../../../core/models/data';
 import { db, serverTimestamp } from '../../../core/firebase/config';
 import { collection, doc, onSnapshot, query, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import LoadingSpinner from '../../LoadingSpinner';
-import UsersIcon from '../../icons/UsersIcon';
-import SearchIcon from '../../icons/SearchIcon';
-import InvitationIcon from '../../icons/InvitationIcon';
+import LoadingSpinner from '../LoadingSpinner';
+import UsersIcon from '../icons/UsersIcon';
+import SearchIcon from '../icons/SearchIcon';
+import InvitationIcon from '../icons/InvitationIcon';
 import AddUserModal from './AddUserModal';
-import UserPlusIcon from '../../icons/UserPlusIcon';
-import TrashIcon from '../../icons/TrashIcon';
+import UserPlusIcon from '../icons/UserPlusIcon';
+import TrashIcon from '../icons/TrashIcon';
 
 
 // Invite User Modal

@@ -1,6 +1,8 @@
-import { db } from '../../firebase/config';
+// FIX: Corrected import path for firebase config.
+import { db } from '../firebase/config';
 import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
-import { ReservationSetting } from '../../data/mockData';
+// FIX: Corrected import path and type name for ReservationSetting.
+import { ReservationSetting } from '../models/data';
 
 // For user-specific settings
 export const getUserNotificationSettings = async (userId: string) => {

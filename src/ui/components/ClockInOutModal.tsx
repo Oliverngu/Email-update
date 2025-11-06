@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { User, TimeEntry, Unit } from '../../core/models/data';
 import { db, Timestamp } from '../../core/firebase/config';
 import { collection, where, query, getDocs, doc, addDoc, updateDoc, documentId } from 'firebase/firestore';

@@ -14,11 +14,11 @@ import {
     writeBatch,
     getDocs,
 } from 'firebase/firestore';
-import LoadingSpinner from '../../LoadingSpinner';
-import ContactsIcon from '../../icons/ContactsIcon';
-import EyeIcon from '../../icons/EyeIcon';
-import EyeSlashIcon from '../../icons/EyeSlashIcon';
-import TrashIcon from '../../icons/TrashIcon';
+import LoadingSpinner from '../LoadingSpinner';
+import ContactsIcon from '../icons/ContactsIcon';
+import EyeIcon from '../icons/EyeIcon';
+import EyeSlashIcon from '../icons/EyeSlashIcon';
+import TrashIcon from '../icons/TrashIcon';
 
 interface ContactsAppProps {
   currentUser: User;

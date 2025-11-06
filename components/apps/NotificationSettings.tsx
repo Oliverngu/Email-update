@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getUnitNotificationSettings, updateUnitNotificationSettings } from '../../core/api/settingsService';
-import BellIcon from '../icons/BellIcon';
-import LoadingSpinner from '../LoadingSpinner';
+import BellIcon from '@/ui/components/icons/BellIcon';
+import LoadingSpinner from '@/ui/components/LoadingSpinner';
 
 interface NotificationSettingsProps {
     unitId: string;

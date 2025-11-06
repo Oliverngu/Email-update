@@ -3,11 +3,11 @@ import { User, Unit, FileMetadata } from '../../../core/models/data';
 import { db, storage, serverTimestamp } from '../../../core/firebase/config';
 import { collection, onSnapshot, query, where, orderBy, addDoc, doc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import LoadingSpinner from '../../LoadingSpinner';
-import BookIcon from '../../icons/BookIcon';
-import TrashIcon from '../../icons/TrashIcon';
-import DownloadIcon from '../../icons/DownloadIcon';
-import PlusIcon from '../../icons/PlusIcon';
+import LoadingSpinner from '../LoadingSpinner';
+import BookIcon from '../icons/BookIcon';
+import TrashIcon from '../icons/TrashIcon';
+import DownloadIcon from '../icons/DownloadIcon';
+import PlusIcon from '../icons/PlusIcon';
 
 interface TudastarAppProps {
   currentUser: User;

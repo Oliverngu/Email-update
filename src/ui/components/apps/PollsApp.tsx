@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { User, Poll } from '../../../core/models/data';
-import PollList from './PollList';
-import PollDetail from './PollDetail';
-import CreatePoll from './CreatePoll';
+import PollList from '../polls/PollList';
+import PollDetail from '../polls/PollDetail';
+import CreatePoll from '../polls/CreatePoll';
 
 interface PollsAppProps {
   currentUser: User;

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { User, Request, Shift, Todo, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from '../../core/models/data';
+import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
+import { User, Request, Booking, Shift, Todo, Contact, ContactCategory, Position, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from '../../core/models/data';
+import { db } from '../../core/firebase/config';
 
 // Import App Components
 import KerelemekApp from './apps/KerelemekApp';
@@ -37,7 +38,11 @@ import AdminIcon from './icons/AdminIcon';
 import PollsIcon from './icons/PollsIcon';
 import ChatIcon from './icons/ChatIcon';
 import { useUnitContext } from '../context/UnitContext';
+import UserIcon from './icons/UserIcon';
 import ArrowDownIcon from './icons/ArrowDownIcon';
+import InvitationIcon from './icons/InvitationIcon';
+import BuildingIcon from './icons/BuildingIcon';
+import CalendarOffIcon from './icons/CalendarOffIcon';
 
 
 interface DashboardProps {
@@ -118,21 +123,20 @@ const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
     if (categoryStorageKey) {
         try {
+            // Prevent stringifying if the state is not a valid object, which could happen during hydration or state corruption.
             if (typeof openCategories !== 'object' || openCategories === null || Array.isArray(openCategories)) {
                 return;
             }
-
-            const stateToSave: Record<string, boolean> = {};
-            for (const key in openCategories) {
-                if (Object.prototype.hasOwnProperty.call(openCategories, key)) {
-                    const value = openCategories[key];
-                    if (typeof value === 'boolean') {
-                        stateToSave[key] = value;
-                    }
-                }
-            }
             
-            localStorage.setItem(categoryStorageKey, JSON.stringify(stateToSave));
+            const sanitizedState = Object.keys(openCategories).reduce((acc, key) => {
+                const value = openCategories[key as keyof typeof openCategories];
+                if (typeof value === 'boolean') {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {} as Record<string, boolean>);
+
+            localStorage.setItem(categoryStorageKey, JSON.stringify(sanitizedState));
         } catch (e) {
             console.error("Failed to save sidebar state to localStorage due to a possible circular reference.", e);
         }
@@ -144,7 +148,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
   // --- End Accordion Menu State ---
 
-  const { selectedUnits: activeUnitIds } = useUnitContext();
+  const { selectedUnits: activeUnitIds, setSelectedUnits: setActiveUnitIds, allUnits: contextAllUnits } = useUnitContext();
   
   // The check for currentUser is handled in App.tsx, so it's safe to assume it's not null here.
   if (!currentUser) {
@@ -153,7 +157,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   
   const hasPermission = (permission: keyof Permissions | 'canManageAdminPage'): boolean => {
     if (currentUser.role === 'Admin') return true;
-    if (currentUser.role === 'Demo User') {
+    if (currentUser.role === 'Demo User') { 
         if (typeof permission === 'string') {
             return permission.startsWith('canView') || permission === 'canSubmitLeaveRequests';
         }
