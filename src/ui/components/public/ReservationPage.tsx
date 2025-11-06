@@ -4,8 +4,8 @@ import { db, Timestamp } from '../../../core/firebase/config';
 import { doc, getDoc, collection, addDoc, setDoc } from 'firebase/firestore';
 import LoadingSpinner from '../LoadingSpinner';
 import CalendarIcon from '../icons/CalendarIcon';
-import CopyIcon from '../icons/CopyIcon';
-import { translations } from '../../../lib/i18n';
+import CopyIcon from '../icons/CopyIcon'; // Új import
+import { translations } from '../../../lib/i18n'; // Import a kiszervezett fájlból
 import { sendEmail } from '../../../core/api/emailService';
 
 type Locale = 'hu' | 'en';
@@ -112,10 +112,10 @@ const ReservationPage: React.FC<ReservationPageProps> = ({ unitId, allUnits, cur
                         theme: { ...DEFAULT_THEME, ...(dbData.theme || {}) },
                     };
                     setSettings(finalSettings);
-                    setFormData(prev => ({...prev, occasion: finalSettings.guestForm.occasionOptions[0] || ''}));
+                    setFormData(prev => ({...prev, occasion: finalSettings.guestForm?.occasionOptions[0] || ''}));
                 } else {
                     setSettings(defaultSettings);
-                    setFormData(prev => ({...prev, occasion: defaultSettings.guestForm.occasionOptions[0] || ''}));
+                    setFormData(prev => ({...prev, occasion: defaultSettings.guestForm?.occasionOptions[0] || ''}));
                 }
             } catch (err) {
                 console.error("Error fetching reservation settings:", err);

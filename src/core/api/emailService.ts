@@ -2,7 +2,7 @@
 
 import { emailProviderConfig } from '../config/emailConfig';
 import { renderEmailTemplate, EmailTemplateData } from '../email/templates';
-import { getGlobalNotificationSettings, GlobalNotificationSettings, getUnitNotificationSettings } from './settingsService';
+import { getGlobalNotificationSettings, getUnitNotificationSettings } from './settingsService';
 
 // A union of all possible message types
 export type EmailMessageType = 

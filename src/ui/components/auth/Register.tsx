@@ -125,7 +125,7 @@ const Register: React.FC<RegisterProps> = ({ inviteCode, onRegisterSuccess }) =>
           ...userDataForDb,
           role: userDataForDb.role as User['role'],
       };
-      // NEW simplified call
+      
       await sendEmail({
           messageType: 'registration_confirmation',
           data: { user: userForEmail },
@@ -237,3 +237,5 @@ const Register: React.FC<RegisterProps> = ({ inviteCode, onRegisterSuccess }) =>
     </div>
   );
 };
+
+export default Register;

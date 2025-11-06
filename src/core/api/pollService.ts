@@ -116,7 +116,7 @@ export const castVote = async (pollId: string, user: User, selectedOptionIds: st
       throw new Error("Szavazás nem található.");
     }
 
-    if (voteDoc.exists) {
+    if (voteDoc.exists()) {
       throw new Error("Már szavaztál.");
     }
     

@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
-import { User, Request, Booking, Shift, Todo, Contact, ContactCategory, Position, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from 'core/models/data';
-import { db } from 'core/firebase/config';
+import React, { useState, useEffect, useMemo } from 'react';
+import { User, Request, Shift, Todo, Unit, RolePermissions, Permissions, TimeEntry, Feedback, Poll } from 'core/models/data';
 
 // Import App Components
 import KerelemekApp from './apps/KerelemekApp';
@@ -14,7 +13,7 @@ import TudastarApp from './apps/TudastarApp';
 import VelemenyekApp from './apps/VelemenyekApp';
 import BerezesemApp from './apps/BerezesemApp';
 import { AdminisztracioApp } from './apps/AdminisztracioApp';
-import HomeDashboard from '../HomeDashboard';
+import HomeDashboard from './HomeDashboard';
 import PollsApp from './apps/PollsApp';
 import ChatApp from './apps/ChatApp';
 
@@ -27,7 +26,7 @@ import SettingsIcon from '../icons/SettingsIcon';
 import LogoutIcon from '../icons/LogoutIcon';
 import MenuIcon from '../icons/MenuIcon';
 import MintLeafLogo from '../icons/AppleLogo';
-import LoadingSpinner from '../LoadingSpinner';
+import LoadingSpinner from './LoadingSpinner';
 import TodoIcon from '../icons/TodoIcon';
 import AdminTodoIcon from '../icons/AdminTodoIcon';
 import ContactsIcon from '../icons/ContactsIcon';
@@ -38,11 +37,7 @@ import AdminIcon from '../icons/AdminIcon';
 import PollsIcon from '../icons/PollsIcon';
 import ChatIcon from '../icons/ChatIcon';
 import { useUnitContext } from 'ui/context/UnitContext';
-import UserIcon from '../icons/UserIcon';
 import ArrowDownIcon from '../icons/ArrowDownIcon';
-import InvitationIcon from '../icons/InvitationIcon';
-import BuildingIcon from '../icons/BuildingIcon';
-import CalendarOffIcon from '../icons/CalendarOffIcon';
 
 
 interface DashboardProps {
@@ -149,7 +144,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
   // --- End Accordion Menu State ---
 
-  const { selectedUnits: activeUnitIds, setSelectedUnits: setActiveUnitIds, allUnits: contextAllUnits } = useUnitContext();
+  const { selectedUnits: activeUnitIds } = useUnitContext();
   
   // The check for currentUser is handled in App.tsx, so it's safe to assume it's not null here.
   if (!currentUser) {
@@ -158,8 +153,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   
   const hasPermission = (permission: keyof Permissions | 'canManageAdminPage'): boolean => {
     if (currentUser.role === 'Admin') return true;
-    if (currentUser.role === 'Demo User') { 
-        // FIX: Added type check for 'permission' to satisfy strict TypeScript rules.
+    if (currentUser.role === 'Demo User') {
         if (typeof permission === 'string') {
             return permission.startsWith('canView') || permission === 'canSubmitLeaveRequests';
         }

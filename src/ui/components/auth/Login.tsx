@@ -189,3 +189,5 @@ const Login: React.FC<LoginProps> = ({ loginMessage }) => {
     </div>
   );
 };
+
+export default Login;

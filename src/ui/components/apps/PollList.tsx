@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { getPollsForUnit } from 'core/api/pollService';
 import { Poll, User } from 'core/models/data';
 
 interface PollListProps {

@@ -4,7 +4,7 @@ import Register from 'ui/components/auth/Register';
 import Dashboard from 'ui/components/Dashboard';
 import ReservationPage from 'ui/components/public/ReservationPage';
 import ManageReservationPage from 'ui/components/public/ManageReservationPage';
-import { User, Request, Booking, Shift, Todo, Unit, RolePermissions, Permissions, demoUser, demoUnit, demoData, TimeEntry, Feedback, Poll } from 'core/models/data';
+import { User, Request, Shift, Todo, Unit, RolePermissions, Permissions, demoUser, demoData, TimeEntry, Feedback, Poll } from 'core/models/data';
 import { auth, db } from 'core/firebase/config';
 import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
 import { collection, collectionGroup, doc, getDoc, getDocs, limit, onSnapshot, query, setDoc, where, orderBy } from 'firebase/firestore';

@@ -180,7 +180,7 @@ const ReservationPage: React.FC<ReservationPageProps> = ({ unitId, allUnits, cur
             await setDoc(newReservationRef, newReservation);
             setSubmittedData({ ...newReservation, date: selectedDate });
             setStep(3);
-        } catch (err: any) {
+        } catch (err) {
             console.error("Error submitting reservation:", err);
             // FIX: Handle unknown error type from catch clause.
             let errorMessage = "Ismeretlen hiba történt";

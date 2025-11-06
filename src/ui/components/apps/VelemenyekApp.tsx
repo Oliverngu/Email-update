@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Feedback, User, Unit } from 'core/models/data';
 import { db, serverTimestamp } from 'core/firebase/config';
 import { collection, addDoc, doc, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
-import LoadingSpinner from '../LoadingSpinner';
 import FeedbackIcon from '../icons/FeedbackIcon';
 import TrashIcon from '../icons/TrashIcon';
 
