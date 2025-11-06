@@ -13,7 +13,7 @@ const FelhasznalokApp: React.FC<FelhasznalokAppProps> = (props) => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Felhasználók kezelése</h1>
-                    <p className="text-gray-600 mt-1">Fiókok, jogosultságok és egységekhez való hozzárendelések kezelése.</p>
+                    <p className="text-gray-600 mt-1">Itt tudod kezelni a felhasználók teendőket.</p>
                 </div>
                 <button className="bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-green-800">
                     <PlusIcon />

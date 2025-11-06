@@ -472,7 +472,7 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({ currentUser, requests, sc
                 schedule: 'beosztas',
                 bookings: 'foglalasok',
                 velemenyek: 'velemenyek',
-                szavazasok: 'szavazasok',
+                szavazasok: 'polls',
             };
             const targetApp = widgetIdToAppMap[widget.id];
 

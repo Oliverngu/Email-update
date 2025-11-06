@@ -16,7 +16,7 @@ const KerelemekApp: React.FC<KerelemekAppProps> = ({ requests, loading, error, c
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">Szabadságkérelmek</h1>
-                    <p className="text-gray-600 mt-1">Itt tudod kezelni a leadott és fogadott szabadságkérelmeket.</p>
+                    <p className="text-gray-600 mt-1">Itt tudod kezelni a kérelmek teendőket.</p>
                 </div>
                 <button className="bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-green-800">
                     <PlusIcon />

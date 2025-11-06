@@ -16,7 +16,7 @@ export const BeosztasApp: React.FC<BeosztasAppProps> = ({ schedule, requests, cu
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">Beosztáskezelő</h1>
-                    <p className="text-gray-600 mt-1">Készítsd el és publikáld a heti beosztásokat.</p>
+                    <p className="text-gray-600 mt-1">Itt tudod kezelni a beosztás teendőket.</p>
                 </div>
                 {canManage && (
                     <div className="flex items-center gap-2">

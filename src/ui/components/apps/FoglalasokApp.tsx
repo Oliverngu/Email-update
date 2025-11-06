@@ -15,7 +15,7 @@ const FoglalasokApp: React.FC<FoglalasokAppProps> = ({ currentUser, canAddBookin
              <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">Foglalások</h1>
-                    <p className="text-gray-600 mt-1">Tekintsd át a naptárat és kezeld a foglalásokat.</p>
+                    <p className="text-gray-600 mt-1">Itt tudod kezelni a foglalások teendőket.</p>
                 </div>
                 {canAddBookings && (
                     <button className="bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-green-800">

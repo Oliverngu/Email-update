@@ -14,7 +14,7 @@ const ContactsApp: React.FC<ContactsAppProps> = (props) => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">Elérhetőségek</h1>
-                    <p className="text-gray-600 mt-1">Fontos partnerek és munkatársak elérhetőségei.</p>
+                    <p className="text-gray-600 mt-1">Itt tudod kezelni a kontaktok teendőket.</p>
                 </div>
                 {props.canManage && (
                     <button className="bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-green-800">

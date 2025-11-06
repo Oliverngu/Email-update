@@ -15,7 +15,7 @@ const BerezesemApp: React.FC<BerezesemAppProps> = (props) => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">Munkaórák és Bér</h1>
-                    <p className="text-gray-600 mt-1">Részletes bontás a ledolgozott órákról és a becsült bérről.</p>
+                    <p className="text-gray-600 mt-1">Itt tudod kezelni a bérezésem teendőket.</p>
                 </div>
             </div>
             <div className="flex-1 mt-4 bg-white rounded-lg border shadow-sm flex items-center justify-center">

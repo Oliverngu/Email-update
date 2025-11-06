@@ -63,7 +63,7 @@ interface DashboardProps {
   firestoreError?: string | null;
 }
 
-type AppName = 'home' | 'kerelemek' | 'foglalasok' | 'beosztas' | 'settings' | 'todos' | 'admin_todos' | 'elerhetosegek' | 'tudastar' | 'velemenyek' | 'berezesem' | 'adminisztracio' | 'szavazasok' | 'chat';
+type AppName = 'home' | 'kerelemek' | 'foglalasok' | 'beosztas' | 'settings' | 'todos' | 'admin_todos' | 'contacts' | 'tudastar' | 'velemenyek' | 'berezesem' | 'adminisztracio' | 'polls' | 'chat';
 
 const AccessDenied: React.FC = () => (
   <div className="flex items-center justify-center h-full p-8 text-center bg-gray-100">
@@ -327,7 +327,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             return <ChatApp currentUser={currentUser} allUsers={allUsers} allUnits={allUnits} activeUnitIds={activeUnitIds} />;
         case 'admin_todos':
             return <AdminTodoApp todos={adminTodos} loading={false} error={null} currentUser={currentUser} />;
-        case 'elerhetosegek':
+        case 'contacts':
             return <ContactsApp currentUser={currentUser} canManage={hasPermission('canManageContacts')} canViewAll={hasPermission('canViewAllContacts')} />;
         case 'tudastar':
             return <TudastarApp currentUser={currentUser} allUnits={allUnits} activeUnitIds={activeUnitIds}/>;
@@ -335,7 +335,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             return <VelemenyekApp currentUser={currentUser} allUnits={allUnits} activeUnitIds={activeUnitIds} feedbackList={feedbackList} />;
         case 'berezesem':
             return <BerezesemApp currentUser={currentUser} schedule={shifts} activeUnitIds={activeUnitIds} timeEntries={timeEntries} allUnits={allUnits} />;
-        case 'szavazasok':
+        case 'polls':
             return <PollsApp currentUser={currentUser} canCreatePolls={hasPermission('canCreatePolls')} polls={polls} />;
         case 'adminisztracio':
              if (!hasPermission('canManageAdminPage')) return <AccessDenied />;
@@ -396,7 +396,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
             <CategoryItem name="kommunikacio" label="Kommunikáció" icon={ChatIcon}>
                 <NavItem app="chat" icon={ChatIcon} label="Chat" />
-                <NavItem app="szavazasok" icon={PollsIcon} label="Szavazások" />
+                <NavItem app="polls" icon={PollsIcon} label="Szavazások" />
                 <NavItem app="velemenyek" icon={FeedbackIcon} label="Vélemények" />
             </CategoryItem>
 

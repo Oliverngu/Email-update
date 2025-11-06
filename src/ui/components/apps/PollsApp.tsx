@@ -44,7 +44,10 @@ const PollsApp: React.FC<PollsAppProps> = ({ currentUser, canCreatePolls, polls 
     return (
         <div className="p-4 md:p-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Szavazások</h1>
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-800">Szavazások</h1>
+                    <p className="text-gray-600 mt-1">Itt tudod kezelni a szavazások teendőket.</p>
+                </div>
                 {view === 'list' && canCreatePolls && (
                     <button onClick={() => setView('create')} className="bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-green-800">
                         <PlusIcon />

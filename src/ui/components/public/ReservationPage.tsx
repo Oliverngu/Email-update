@@ -201,6 +201,8 @@ const ReservationPage: React.FC<ReservationPageProps> = ({ unitId, allUnits, cur
             setStep(3);
         } catch (err: unknown) {
             console.error("Error submitting reservation:", err);
+            // FIX: The `err` variable is of type `unknown` and cannot be directly used in a template string.
+            // We must first narrow its type to extract a meaningful error message.
             let errorMessage = "Ismeretlen hiba.";
             if (err instanceof Error) {
                 errorMessage = err.message;

@@ -12,7 +12,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = (props) => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Értesítési beállítások</h1>
-                    <p className="text-gray-600 mt-1">E-mail értesítések testreszabása a különböző eseményekhez.</p>
+                    <p className="text-gray-600 mt-1">Itt tudod kezelni az értesítések teendőket.</p>
                 </div>
                  <button className="bg-green-700 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-800">
                     Mentés

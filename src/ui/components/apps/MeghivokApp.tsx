@@ -13,7 +13,7 @@ const MeghivokApp: React.FC<MeghivokAppProps> = (props) => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Meghívók kezelése</h1>
-                    <p className="text-gray-600 mt-1">Generálj és kezelj regisztrációs kódokat új felhasználók számára.</p>
+                    <p className="text-gray-600 mt-1">Itt tudod kezelni a meghívók teendőket.</p>
                 </div>
                  <button className="bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-green-800">
                     <PlusIcon />
