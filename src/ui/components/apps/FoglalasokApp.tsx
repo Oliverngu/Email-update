@@ -3,12 +3,12 @@ import { Booking, User, Unit } from '../../data/mockData';
 import { db, Timestamp, serverTimestamp } from '../../firebase/config';
 import { collection, query, where, orderBy, onSnapshot, addDoc, doc, updateDoc } from 'firebase/firestore';
 import BookingIcon from '../src/ui/components/icons/BookingIcon';
-import LoadingSpinner from '..src/LoadingSpinner';
-import AddBookingModal from '..src/ui/components/AddBookingModal';
-import PlusIcon from '..src/ui/components/icons/PlusIcon';
-import SettingsIcon from '..src/ui/components/icons/SettingsIcon';
-import ReservationSettingsModal from '.src/ui/components/ReservationSettingsModal';
-import TrashIcon from '..src/ui/components/icons/TrashIcon';
+import LoadingSpinner from '../src/LoadingSpinner';
+import AddBookingModal from '../src/ui/components/AddBookingModal';
+import PlusIcon from '../src/ui/components/icons/PlusIcon';
+import SettingsIcon from '../src/ui/components/icons/SettingsIcon';
+import ReservationSettingsModal from '../src/ui/components/ReservationSettingsModal';
+import TrashIcon from '../src/ui/components/icons/TrashIcon';
 
 interface FoglalasokAppProps {
   currentUser: User;
